@@ -13,12 +13,15 @@ public class Session {
     
      private static Session instance;
     private int id;
+      private int c_id;
+    private int p_id;
     private String fn;
     private String middle;
     private String ln;
     private String username;
+    private String contact;
     private String type;
-      private String gender;
+    private String gender;
     private String email;
     private String status;
     private Session(){
@@ -44,10 +47,24 @@ public class Session {
          this.id = id;
    
     }
-
+    public int getPId(){
+        return p_id ;
+    }
+    
+     public void setPId(int p_id) {
+         this.p_id = p_id;
+     }
+     
+      public int getCId(){
+        return c_id ;
+    }
+       public void setCId(int c_id) {
+         this.c_id = c_id;
+     }
     public String getFn() {
         return fn;
     }
+    
 
     public void setFn(String fn) {
         this.fn = fn;
@@ -68,6 +85,12 @@ public class Session {
 
     public String getUsername() {
         return username;
+    }
+    public String getContact() {
+        return contact;
+    }
+    public void setcontactN(String contact){
+        this.contact = contact;
     }
 
     public void setUn(String username) {

@@ -12,6 +12,7 @@ import java.awt.Color;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.swing.JOptionPane;
 import net.proteanit.sql.DbUtils;
 
 /**
@@ -58,6 +59,8 @@ public class clientproject extends javax.swing.JFrame {
         table_client = new javax.swing.JTable();
         add = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
+        aproved = new javax.swing.JButton();
+        decline = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -114,6 +117,22 @@ public class clientproject extends javax.swing.JFrame {
             }
         });
 
+        aproved.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        aproved.setText("APROVED");
+        aproved.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                aprovedActionPerformed(evt);
+            }
+        });
+
+        decline.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        decline.setText("DECLINE");
+        decline.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                declineActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -121,12 +140,18 @@ public class clientproject extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(37, 37, 37)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(add, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())))
+                        .addContainerGap())
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(add, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(decline, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(40, 40, 40)
+                        .addComponent(aproved, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(109, 109, 109))))
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 551, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -139,9 +164,12 @@ public class clientproject extends javax.swing.JFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
                     .addComponent(jLabel3))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
-                .addComponent(add, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 50, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(aproved, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(decline, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(add, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(8, 8, 8)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 284, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(24, 24, 24))
         );
@@ -163,6 +191,132 @@ public class clientproject extends javax.swing.JFrame {
         pj.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jLabel3MouseClicked
+
+    private void aprovedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aprovedActionPerformed
+        int selectedRow = table_client.getSelectedRow();
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(null, "Please select a Client to aproval.");
+            return;
+        }
+
+        int taskId = (int) table_client.getValueAt(selectedRow, 0);
+
+        // Get the current logged-in user's name from session
+        Session sess = Session.getInstance();
+        String currentUserFname = sess.getFn();  // Get user from session
+
+        dbConnector dbc = new dbConnector();
+
+        // Step 1: Check if the task is already accepted
+        String checkQuery = "SELECT approval FROM tbl_client WHERE c_id = ?";
+        try (PreparedStatement checkPst = dbc.connect.prepareStatement(checkQuery)) {
+            checkPst.setInt(1, taskId);
+            ResultSet rs = checkPst.executeQuery();
+
+            if (rs.next()) {
+                String acceptStatus = rs.getString("approval");
+                if ("Approval".equalsIgnoreCase(acceptStatus)) {
+                    JOptionPane.showMessageDialog(null, "This project has already been accepted.");
+                    return;
+                }
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Step 2: Accept the task and assign the user
+        String updateQuery = "UPDATE tbl_client SET approval = 'Approval', worker_assign = ? WHERE c_id = ?";
+        try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
+            pst.setString(1, currentUserFname);
+            pst.setInt(2, taskId);
+            int rowsAffected = pst.executeUpdate();
+
+            if (rowsAffected > 0) {
+                aproved.setText("Approval");
+                aproved.setEnabled(false);
+                JOptionPane.showMessageDialog(null, "Client accepted successfully!");
+            } else {
+                JOptionPane.showMessageDialog(null, "Error accepting Client.");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            displayData();
+            try {
+                if (dbc.connect != null && !dbc.connect.isClosed()) {
+                    dbc.connect.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Error closing connection: " + e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_aprovedActionPerformed
+
+    private void declineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_declineActionPerformed
+        int selectedRow = table_client.getSelectedRow();
+
+        if (selectedRow == -1) {
+            // No row selected, show an error message
+            JOptionPane.showMessageDialog(null, "Please select a task to decline.");
+            return;
+        }
+
+        // Get the task ID from the selected row (assuming the task ID is in the first column)
+        int taskId = (int) table_client.getValueAt(selectedRow, 0);
+
+        // Step 1: Check if the selected task is already accepted
+        String checkQuery = "SELECT decline FROM tbl_client WHERE c_id = ?";
+        dbConnector dbc = new dbConnector();
+
+        try (PreparedStatement checkPst = dbc.connect.prepareStatement(checkQuery)) {
+            checkPst.setInt(1, taskId);
+            ResultSet rs = checkPst.executeQuery();
+
+            if (rs.next()) {
+                // If the task is already accepted, show an error message
+                String acceptStatus = rs.getString("decline");
+                if ("Yes".equals(acceptStatus)) {
+                    JOptionPane.showMessageDialog(null, "This Client has already been accepted and cannot be declined.");
+                    return;
+                }
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        // Step 2: Update the accept column to "No" for the selected task (decline it)
+        String updateQuery = "UPDATE tbl_client SET approval = 'decline' WHERE c_id = ?";
+
+        try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
+            pst.setInt(1, taskId);
+            int rowsAffected = pst.executeUpdate();
+
+            if (rowsAffected > 0) {
+                // If update is successful, change the button text and disable it
+                decline.setText("Decline");
+                decline.setEnabled(false);  // Disable the button to prevent multiple decline actions
+                JOptionPane.showMessageDialog(null, "Client declined successfully!");
+            } else {
+                JOptionPane.showMessageDialog(null, "Error declining Client.");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            // Optionally, you can reload the table data after declining a task
+            displayData();
+
+            // Close the database connection
+            try {
+                if (dbc.connect != null && !dbc.connect.isClosed()) {
+                    dbc.connect.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Error closing connection: " + e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_declineActionPerformed
 
     /**
      * @param args the command line arguments
@@ -201,6 +355,8 @@ public class clientproject extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton add;
+    private javax.swing.JButton aproved;
+    private javax.swing.JButton decline;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

@@ -42,6 +42,8 @@ public class projectReports extends javax.swing.JFrame {
       Color  navcolor = new Color(102,0,102);
     Color headcolor = new Color(102,102,255);
     Color bodycolor = new Color(153,153,255);
+    
+
      public void displayData(){
         try{
             dbConnector dbc = new dbConnector();
@@ -143,6 +145,11 @@ public class projectReports extends javax.swing.JFrame {
 
             }
         ));
+        table_project.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                table_projectMouseClicked(evt);
+            }
+        });
         jScrollPane3.setViewportView(table_project);
 
         jPanel2.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 70, 510, -1));
@@ -207,6 +214,7 @@ public class projectReports extends javax.swing.JFrame {
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 0, 750, 600));
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void table_productMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_table_productMouseClicked
@@ -236,127 +244,140 @@ public class projectReports extends javax.swing.JFrame {
     private void aprovedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aprovedActionPerformed
         int selectedRow = table_project.getSelectedRow();
 
-    if (selectedRow == -1) {
-        JOptionPane.showMessageDialog(null, "Please select a project to aproval.");
-        return;
-    }
+if (selectedRow == -1) {
+    JOptionPane.showMessageDialog(null, "Please select a project to approve.");
+    return;
+}
 
-    int taskId = (int) table_project.getValueAt(selectedRow, 0);
+int taskId = (int) table_project.getValueAt(selectedRow, 0);
 
-    // Get the current logged-in user's name from session
-    Session sess = Session.getInstance();
-    String currentUserFname = sess.getFn();  // Get user from session
+// Get the current logged-in user's session
+Session sess = Session.getInstance();
+String currentUserFname = sess.getFn();
+String currentUserType = sess.getType(); // Get user role from session
 
-    dbConnector dbc = new dbConnector();
+// Validate that only admins can approve
+if (!"admin".equalsIgnoreCase(currentUserType)) {
+    JOptionPane.showMessageDialog(null, "Only admins are allowed to approve projects.");
+    return;
+}
 
-    // Step 1: Check if the task is already accepted
-    String checkQuery = "SELECT approval FROM tbl_projects WHERE p_id = ?";
-    try (PreparedStatement checkPst = dbc.connect.prepareStatement(checkQuery)) {
-        checkPst.setInt(1, taskId);
-        ResultSet rs = checkPst.executeQuery();
+dbConnector dbc = new dbConnector();
 
-        if (rs.next()) {
-            String acceptStatus = rs.getString("approval");
-            if ("Approval".equalsIgnoreCase(acceptStatus)) {
-                JOptionPane.showMessageDialog(null, "This project has already been accepted.");
-                return;
-            }
-        }
-    } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
+// Step 1: Check if the project is already accepted
+String checkQuery = "SELECT approval FROM tbl_projects WHERE p_id = ?";
+try (PreparedStatement checkPst = dbc.connect.prepareStatement(checkQuery)) {
+    checkPst.setInt(1, taskId);
+    ResultSet rs = checkPst.executeQuery();
 
-    // Step 2: Accept the task and assign the user
-    String updateQuery = "UPDATE tbl_projects SET approval = 'Approval', u_fn = ? WHERE p_id = ?";
-    try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
-        pst.setString(1, currentUserFname);
-        pst.setInt(2, taskId);
-        int rowsAffected = pst.executeUpdate();
-
-        if (rowsAffected > 0) {
-            aproved.setText("Approval");
-            aproved.setEnabled(false);
-            JOptionPane.showMessageDialog(null, "Project accepted successfully!");
-        } else {
-            JOptionPane.showMessageDialog(null, "Error accepting Project.");
-        }
-    } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    } finally {
-        displayData();
-        try {
-            if (dbc.connect != null && !dbc.connect.isClosed()) {
-                dbc.connect.close();
-            }
-        } catch (SQLException e) { 
-            System.out.println("Error closing connection: " + e.getMessage());
+    if (rs.next()) {
+        String acceptStatus = rs.getString("approval");
+        if ("Approval".equalsIgnoreCase(acceptStatus)) {
+            JOptionPane.showMessageDialog(null, "This project has already been approved.");
+            return;
         }
     }
+} catch (SQLException ex) {
+    JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    return;
+}
+
+// Step 2: Approve the project
+String updateQuery = "UPDATE tbl_projects SET approval = 'Approval', u_fn = ? WHERE p_id = ?";
+try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
+    pst.setString(1, currentUserFname);
+    pst.setInt(2, taskId);
+    int rowsAffected = pst.executeUpdate();
+
+    if (rowsAffected > 0) {
+        aproved.setText("Approval");
+        aproved.setEnabled(false);
+        JOptionPane.showMessageDialog(null, "Project approved successfully!");
+    } else {
+        JOptionPane.showMessageDialog(null, "Error approving project.");
+    }
+} catch (SQLException ex) {
+    JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+} finally {
+    displayData();
+    try {
+        if (dbc.connect != null && !dbc.connect.isClosed()) {
+            dbc.connect.close();
+        }
+    } catch (SQLException e) {
+        System.out.println("Error closing connection: " + e.getMessage());
+    }
+}
+
     }//GEN-LAST:event_aprovedActionPerformed
 
     private void declineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_declineActionPerformed
         int selectedRow = table_project.getSelectedRow();
-    
-    if (selectedRow == -1) {
-        // No row selected, show an error message
-        JOptionPane.showMessageDialog(null, "Please select a task to decline.");
-        return;
-    }
 
-    // Get the task ID from the selected row (assuming the task ID is in the first column)
-    int taskId = (int) table_project.getValueAt(selectedRow, 0);
-    
-    // Step 1: Check if the selected task is already accepted
-    String checkQuery = "SELECT decline FROM tbl_projects WHERE p_id = ?";
-    dbConnector dbc = new dbConnector();
-    
-    try (PreparedStatement checkPst = dbc.connect.prepareStatement(checkQuery)) {
-        checkPst.setInt(1, taskId);
-        ResultSet rs = checkPst.executeQuery();
+if (selectedRow == -1) {
+    JOptionPane.showMessageDialog(null, "Please select a task to decline.");
+    return;
+}
 
-        if (rs.next()) {
-            // If the task is already accepted, show an error message
-            String acceptStatus = rs.getString("decline");
-            if ("Yes".equals(acceptStatus)) {
-                JOptionPane.showMessageDialog(null, "This task has already been accepted and cannot be declined.");
-                return;
-            }
-        }
-    } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }    
-     // Step 2: Update the accept column to "No" for the selected task (decline it)
-    String updateQuery = "UPDATE tbl_projects SET approval = 'decline' WHERE p_id = ?";
-    
-    try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
-        pst.setInt(1, taskId);
-        int rowsAffected = pst.executeUpdate();
+// Get current user's type from session
+Session sess = Session.getInstance();
+String currentUserType = sess.getType();
 
-        if (rowsAffected > 0) {
-            // If update is successful, change the button text and disable it
-            decline.setText("Decline");
-            decline.setEnabled(false);  // Disable the button to prevent multiple decline actions
-            JOptionPane.showMessageDialog(null, "Task declined successfully!");
-        } else {
-            JOptionPane.showMessageDialog(null, "Error declining task.");
-        }
-    } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    } finally {
-        // Optionally, you can reload the table data after declining a task
-        displayData();
-        
-        // Close the database connection
-        try {
-            if (dbc.connect != null && !dbc.connect.isClosed()) {
-                dbc.connect.close();
-            }
-        } catch (SQLException e) {
-            System.out.println("Error closing connection: " + e.getMessage());
+// Only allow admin to decline tasks
+if (!"admin".equalsIgnoreCase(currentUserType)) {
+    JOptionPane.showMessageDialog(null, "Only admins are allowed to decline Project.");
+    return;
+}
+
+// Get the task ID from the selected row (assuming the task ID is in the first column)
+int taskId = (int) table_project.getValueAt(selectedRow, 0);
+
+// Step 1: Check if the selected task is already declined
+String checkQuery = "SELECT approval FROM tbl_projects WHERE p_id = ?";
+dbConnector dbc = new dbConnector();
+
+try (PreparedStatement checkPst = dbc.connect.prepareStatement(checkQuery)) {
+    checkPst.setInt(1, taskId);
+    ResultSet rs = checkPst.executeQuery();
+
+    if (rs.next()) {
+        String approvalStatus = rs.getString("approval");
+        if ("decline".equalsIgnoreCase(approvalStatus)) {
+            JOptionPane.showMessageDialog(null, "This Project has already been declined.");
+            return;
         }
     }
+} catch (SQLException ex) {
+    JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    return;
+}
+
+// Step 2: Decline the task
+String updateQuery = "UPDATE tbl_projects SET approval = 'decline' WHERE p_id = ?";
+
+try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
+    pst.setInt(1, taskId);
+    int rowsAffected = pst.executeUpdate();
+
+    if (rowsAffected > 0) {
+        decline.setText("Declined");
+        decline.setEnabled(false);
+        JOptionPane.showMessageDialog(null, "Project declined successfully!");
+    } else {
+        JOptionPane.showMessageDialog(null, "Error declining Project.");
+    }
+} catch (SQLException ex) {
+    JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+} finally {
+    displayData();
+    try {
+        if (dbc.connect != null && !dbc.connect.isClosed()) {
+            dbc.connect.close();
+        }
+    } catch (SQLException e) {
+        System.out.println("Error closing connection: " + e.getMessage());
+    }
+}
 
     }//GEN-LAST:event_declineActionPerformed
 
@@ -365,6 +386,10 @@ public class projectReports extends javax.swing.JFrame {
        a.setVisible(true);
        this.dispose();
     }//GEN-LAST:event_jLabel4MouseClicked
+
+    private void table_projectMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_table_projectMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_table_projectMouseClicked
 
     /**
      * @param args the command line arguments

@@ -36,7 +36,7 @@ public class clientproject extends javax.swing.JFrame {
                
         try{
             dbConnector dbc = new dbConnector();
-            ResultSet rs = dbc.getData("SELECT c_id, u_id,p_name,c_status,worker_assign,accept FROM tbl_client");
+            ResultSet rs = dbc.getData("SELECT c_id, u_id,p_name,c_status,worker_assign,accept,approval FROM tbl_client");
             table_client.setModel(DbUtils.resultSetToTableModel(rs));
             
         
@@ -193,129 +193,133 @@ public class clientproject extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel3MouseClicked
 
     private void aprovedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aprovedActionPerformed
-        int selectedRow = table_client.getSelectedRow();
+      int selectedRow = table_client.getSelectedRow();
 
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(null, "Please select a Client to aproval.");
+if (selectedRow == -1) {
+    JOptionPane.showMessageDialog(null, "Please select a Client to approve.");
+    return;
+}
+
+Session sess = Session.getInstance();
+String currentUserFname = sess.getFn();  // Get user's first name
+String currentUserType = sess.getType(); // Get user's type (admin or employee)
+
+// ✅ Validate if current user is not admin
+if (!"admin".equalsIgnoreCase(currentUserType)) {
+    JOptionPane.showMessageDialog(null, "Only Admins are allowed to approve clients.");
+    return;
+}
+
+int taskId = (int) table_client.getValueAt(selectedRow, 0);
+
+dbConnector dbc = new dbConnector();
+
+// Step 1: Check if the task is already accepted
+String checkQuery = "SELECT approval FROM tbl_client WHERE c_id = ?";
+try (PreparedStatement checkPst = dbc.connect.prepareStatement(checkQuery)) {
+    checkPst.setInt(1, taskId);
+    ResultSet rs = checkPst.executeQuery();
+
+    if (rs.next()) {
+        String acceptStatus = rs.getString("approval");
+        if ("Approval".equalsIgnoreCase(acceptStatus)) {
+            JOptionPane.showMessageDialog(null, "This project has already been accepted.");
             return;
         }
+    }
+} catch (SQLException ex) {
+    JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    return;
+}
 
-        int taskId = (int) table_client.getValueAt(selectedRow, 0);
+// Step 2: Approve the client
+String updateQuery = "UPDATE tbl_client SET approval = 'Approval', worker_assign = ? WHERE c_id = ?";
+try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
+    pst.setString(1, currentUserFname);
+    pst.setInt(2, taskId);
+    int rowsAffected = pst.executeUpdate();
 
-        // Get the current logged-in user's name from session
-        Session sess = Session.getInstance();
-        String currentUserFname = sess.getFn();  // Get user from session
-
-        dbConnector dbc = new dbConnector();
-
-        // Step 1: Check if the task is already accepted
-        String checkQuery = "SELECT approval FROM tbl_client WHERE c_id = ?";
-        try (PreparedStatement checkPst = dbc.connect.prepareStatement(checkQuery)) {
-            checkPst.setInt(1, taskId);
-            ResultSet rs = checkPst.executeQuery();
-
-            if (rs.next()) {
-                String acceptStatus = rs.getString("approval");
-                if ("Approval".equalsIgnoreCase(acceptStatus)) {
-                    JOptionPane.showMessageDialog(null, "This project has already been accepted.");
-                    return;
-                }
-            }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+    if (rowsAffected > 0) {
+        aproved.setText("Approval");
+        aproved.setEnabled(false);
+        JOptionPane.showMessageDialog(null, "Client accepted successfully!");
+    } else {
+        JOptionPane.showMessageDialog(null, "Error accepting Client.");
+    }
+} catch (SQLException ex) {
+    JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+} finally {
+    displayData();
+    try {
+        if (dbc.connect != null && !dbc.connect.isClosed()) {
+            dbc.connect.close();
         }
+    } catch (SQLException e) {
+        System.out.println("Error closing connection: " + e.getMessage());
+    }
+}
 
-        // Step 2: Accept the task and assign the user
-        String updateQuery = "UPDATE tbl_client SET approval = 'Approval', worker_assign = ? WHERE c_id = ?";
-        try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
-            pst.setString(1, currentUserFname);
-            pst.setInt(2, taskId);
-            int rowsAffected = pst.executeUpdate();
-
-            if (rowsAffected > 0) {
-                aproved.setText("Approval");
-                aproved.setEnabled(false);
-                JOptionPane.showMessageDialog(null, "Client accepted successfully!");
-            } else {
-                JOptionPane.showMessageDialog(null, "Error accepting Client.");
-            }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            displayData();
-            try {
-                if (dbc.connect != null && !dbc.connect.isClosed()) {
-                    dbc.connect.close();
-                }
-            } catch (SQLException e) {
-                System.out.println("Error closing connection: " + e.getMessage());
-            }
-        }
     }//GEN-LAST:event_aprovedActionPerformed
 
     private void declineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_declineActionPerformed
         int selectedRow = table_client.getSelectedRow();
 
-        if (selectedRow == -1) {
-            // No row selected, show an error message
-            JOptionPane.showMessageDialog(null, "Please select a task to decline.");
+if (selectedRow == -1) {
+    JOptionPane.showMessageDialog(null, "Please select a task to decline.");
+    return;
+}
+
+// Get the current user's type from session
+Session sess = Session.getInstance();
+String currentUserType = sess.getType();
+
+// Only allow admins to decline tasks
+if (!"admin".equalsIgnoreCase(currentUserType)) {
+    JOptionPane.showMessageDialog(null, "Only admins are allowed to decline clients.");
+    return;
+}
+
+// Get the task ID from the selected row (assuming task ID is in the first column)
+int taskId = (int) table_client.getValueAt(selectedRow, 0);
+
+// Step 1: Check if the selected task is already declined
+String checkQuery = "SELECT approval FROM tbl_client WHERE c_id = ?";
+dbConnector dbc = new dbConnector();
+
+try (PreparedStatement checkPst = dbc.connect.prepareStatement(checkQuery)) {
+    checkPst.setInt(1, taskId);
+    ResultSet rs = checkPst.executeQuery();
+
+    if (rs.next()) {
+        String declineStatus = rs.getString("approval"); // You were checking "decline", but you're updating "approval"
+        if ("Decline".equalsIgnoreCase(declineStatus)) {
+            JOptionPane.showMessageDialog(null, "This client has already been declined.");
             return;
         }
+    }
+} catch (SQLException ex) {
+    JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    return;
+}
 
-        // Get the task ID from the selected row (assuming the task ID is in the first column)
-        int taskId = (int) table_client.getValueAt(selectedRow, 0);
+// Step 2: Update the approval column to "Decline"
+String updateQuery = "UPDATE tbl_client SET approval = 'Decline' WHERE c_id = ?";
 
-        // Step 1: Check if the selected task is already accepted
-        String checkQuery = "SELECT decline FROM tbl_client WHERE c_id = ?";
-        dbConnector dbc = new dbConnector();
+try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
+    pst.setInt(1, taskId);
+    int rowsAffected = pst.executeUpdate();
 
-        try (PreparedStatement checkPst = dbc.connect.prepareStatement(checkQuery)) {
-            checkPst.setInt(1, taskId);
-            ResultSet rs = checkPst.executeQuery();
+    if (rowsAffected > 0) {
+        decline.setText("Declined");
+        decline.setEnabled(false);
+        JOptionPane.showMessageDialog(null, "Client declined successfully!");
+    } else {
+        JOptionPane.showMessageDialog(null, "Error declining client.");
+    }
+} catch (SQLException ex) {
+    JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+}
 
-            if (rs.next()) {
-                // If the task is already accepted, show an error message
-                String acceptStatus = rs.getString("decline");
-                if ("Yes".equals(acceptStatus)) {
-                    JOptionPane.showMessageDialog(null, "This Client has already been accepted and cannot be declined.");
-                    return;
-                }
-            }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        // Step 2: Update the accept column to "No" for the selected task (decline it)
-        String updateQuery = "UPDATE tbl_client SET approval = 'decline' WHERE c_id = ?";
-
-        try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
-            pst.setInt(1, taskId);
-            int rowsAffected = pst.executeUpdate();
-
-            if (rowsAffected > 0) {
-                // If update is successful, change the button text and disable it
-                decline.setText("Decline");
-                decline.setEnabled(false);  // Disable the button to prevent multiple decline actions
-                JOptionPane.showMessageDialog(null, "Client declined successfully!");
-            } else {
-                JOptionPane.showMessageDialog(null, "Error declining Client.");
-            }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            // Optionally, you can reload the table data after declining a task
-            displayData();
-
-            // Close the database connection
-            try {
-                if (dbc.connect != null && !dbc.connect.isClosed()) {
-                    dbc.connect.close();
-                }
-            } catch (SQLException e) {
-                System.out.println("Error closing connection: " + e.getMessage());
-            }
-        }
     }//GEN-LAST:event_declineActionPerformed
 
     /**

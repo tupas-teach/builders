@@ -50,6 +50,7 @@ public class loginform extends javax.swing.JFrame {
             LOGGER.log(Level.SEVERE, "Failed to log login activity", ex);
         }
     }
+
     
     public static boolean loginAcc(String username, String password) {
         dbConnector connector = new dbConnector();

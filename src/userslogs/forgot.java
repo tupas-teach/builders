@@ -97,7 +97,7 @@ public class forgot extends javax.swing.JFrame {
             }
         });
         jPanel1.add(showpassword);
-        showpassword.setBounds(390, 300, 120, 20);
+        showpassword.setBounds(390, 330, 120, 20);
 
         email.setBackground(new java.awt.Color(204, 204, 204));
         email.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2), "Email", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Century Gothic", 1, 11))); // NOI18N
@@ -107,7 +107,7 @@ public class forgot extends javax.swing.JFrame {
             }
         });
         jPanel1.add(email);
-        email.setBounds(200, 110, 280, 40);
+        email.setBounds(200, 100, 340, 50);
 
         otpfield.setBackground(new java.awt.Color(204, 204, 204));
         otpfield.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2), "OTP", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Century Gothic", 1, 11))); // NOI18N
@@ -117,7 +117,7 @@ public class forgot extends javax.swing.JFrame {
             }
         });
         jPanel1.add(otpfield);
-        otpfield.setBounds(200, 160, 190, 40);
+        otpfield.setBounds(210, 170, 190, 40);
 
         comfirmPassword.setBackground(new java.awt.Color(204, 204, 204));
         comfirmPassword.setFont(new java.awt.Font("Century Gothic", 1, 11)); // NOI18N
@@ -128,7 +128,7 @@ public class forgot extends javax.swing.JFrame {
             }
         });
         jPanel1.add(comfirmPassword);
-        comfirmPassword.setBounds(200, 260, 280, 40);
+        comfirmPassword.setBounds(210, 280, 280, 40);
 
         newPassword.setBackground(new java.awt.Color(204, 204, 204));
         newPassword.setFont(new java.awt.Font("Century Gothic", 1, 11)); // NOI18N
@@ -139,7 +139,7 @@ public class forgot extends javax.swing.JFrame {
             }
         });
         jPanel1.add(newPassword);
-        newPassword.setBounds(200, 210, 280, 40);
+        newPassword.setBounds(210, 230, 280, 40);
 
         otpbutton.setText("Send OTP");
         otpbutton.addActionListener(new java.awt.event.ActionListener() {
@@ -148,7 +148,7 @@ public class forgot extends javax.swing.JFrame {
             }
         });
         jPanel1.add(otpbutton);
-        otpbutton.setBounds(400, 160, 110, 40);
+        otpbutton.setBounds(410, 170, 110, 40);
 
         login.setText("LOGIN");
         login.addActionListener(new java.awt.event.ActionListener() {
@@ -157,7 +157,7 @@ public class forgot extends javax.swing.JFrame {
             }
         });
         jPanel1.add(login);
-        login.setBounds(200, 340, 100, 30);
+        login.setBounds(210, 370, 100, 30);
 
         reset.setText("Reset Password");
         reset.addActionListener(new java.awt.event.ActionListener() {
@@ -166,7 +166,7 @@ public class forgot extends javax.swing.JFrame {
             }
         });
         jPanel1.add(reset);
-        reset.setBounds(360, 340, 160, 30);
+        reset.setBounds(370, 370, 160, 30);
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/userimages/attachment_63634065.png"))); // NOI18N
         jPanel1.add(jLabel2);

@@ -393,9 +393,9 @@ public class createclient extends javax.swing.JFrame {
                     return;
                 }
             }
-            String sql = "UPDATE tbl_client SET p_id = ?, u_id = ?, p_name = ?, u_fn = ?, worker_assign = ?, " +
-            "c_date = ?, c_duedate = ?,c_gender =? ,c_email = ?, c_status = ?, accept = CASE WHEN user_assign IS NOT NULL THEN 'Accepted' ELSE 'Pending' END " +
-            "WHERE c_id = ?";
+           String sql = "UPDATE tbl_client SET p_id = ?, u_id = ?, p_name = ?, u_fn = ?, worker_assign = ?, " +
+             "c_date = ?, c_duedate = ?, c_gender = ?, c_email = ?, c_status = ?, accept = ?, approval = ? " +
+             "WHERE c_id = ?";
             try (PreparedStatement pst = db.connect.prepareStatement(sql)) {
                 pst.setInt(1, p_id);
                 pst.setInt(2, u_id);
@@ -508,7 +508,7 @@ public class createclient extends javax.swing.JFrame {
             }
 
             // Insert the new task into tbl_task
-            String insertQuery = "INSERT INTO tbl_client (p_id, u_id, p_name, u_fn, worker_assign, c_date, c_duedate,c_gender,c_email ,c_status, accept) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)";
+            String insertQuery = "INSERT INTO tbl_client (p_id, u_id, p_name, u_fn, worker_assign, c_date, c_duedate,c_gender,c_email ,c_status, accept,approval) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)";
             try (PreparedStatement pstInsert = db.connect.prepareStatement(insertQuery)) {
                 pstInsert.setInt(1, p_id);
                 pstInsert.setInt(2, creatorId);
@@ -523,8 +523,10 @@ public class createclient extends javax.swing.JFrame {
 
                 if (!userAssign.isEmpty()) {
                     pstInsert.setString(11, "Accepted");
+                     pstInsert.setString(12, "Pending"); // Or another status
                 } else {
                     pstInsert.setNull(11, java.sql.Types.VARCHAR);
+                    pstInsert.setString(12, "Pending");
                 }
 
                 int rowsAffected = pstInsert.executeUpdate();

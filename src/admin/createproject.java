@@ -43,8 +43,12 @@ public class createproject extends javax.swing.JFrame {
         initComponents();
  populateClientNameComboBox(client_name);
    populateEmployeeComboBox(employee);
+  
         
     }
+   
+
+
    public void populateEmployeeComboBox(JComboBox<String> comboBox) {
     dbConnector dbc = new dbConnector();
     String query = "SELECT CONCAT(u_fn, ' ', u_ln) AS full_name FROM tbl_user WHERE u_type = 'employee'";
@@ -183,7 +187,7 @@ public class createproject extends javax.swing.JFrame {
         pname = new javax.swing.JComboBox<>();
         contact = new javax.swing.JTextField();
         endyear = new com.toedter.calendar.JDateChooser();
-        syear = new com.toedter.calendar.JDateChooser();
+        date = new com.toedter.calendar.JDateChooser();
         uid = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
@@ -298,7 +302,13 @@ public class createproject extends javax.swing.JFrame {
         jPanel3.add(pname, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 137, 258, 35));
         jPanel3.add(contact, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 447, 258, 47));
         jPanel3.add(endyear, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 333, 258, 41));
-        jPanel3.add(syear, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 182, 258, 39));
+
+        date.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                dateMouseClicked(evt);
+            }
+        });
+        jPanel3.add(date, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 182, 258, 39));
         jPanel3.add(uid, new org.netbeans.lib.awtextra.AbsoluteConstraints(147, 54, 257, 36));
 
         jLabel8.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
@@ -349,6 +359,12 @@ public class createproject extends javax.swing.JFrame {
             }
         });
         jPanel3.add(employee, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 96, 258, 35));
+
+        budget.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                budgetActionPerformed(evt);
+            }
+        });
         jPanel3.add(budget, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 239, 258, 35));
         jPanel3.add(pid, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 0, 257, 36));
 
@@ -429,13 +445,13 @@ public class createproject extends javax.swing.JFrame {
     private void AddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddActionPerformed
         if (checkadd) {
             if (location.getText().isEmpty() || contact.getText().isEmpty() || employee.getSelectedItem().equals("")
-                || syear.getDate() == null || endyear.getDate() == null) {
+                || date.getDate() == null || endyear.getDate() == null) {
                 JOptionPane.showMessageDialog(null, "All fields are required!");
             } else {
                 try {
                     dbConnector dbc = new dbConnector();
                     java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
-                    String formattedStartDate = sdf.format(syear.getDate());
+                    String formattedStartDate = sdf.format(date.getDate());
                     String formattedEndDate = sdf.format(endyear.getDate());
 
                     String query = "INSERT INTO tbl_projects (u_id , u_fn,p_name, p_date, p_location, p_budget, p_updatedate, u_type, p_contact, p_status,p_image) "
@@ -452,7 +468,7 @@ public class createproject extends javax.swing.JFrame {
                     ps.setString(8, client_name.getSelectedItem().toString());
                     ps.setString(9, contact.getText());
                     ps.setString(10, pstatus.getSelectedItem().toString());
-                      ps.setString(11, destination);
+                
                 
                       try{
                 Files.copy(selectedFile.toPath(),new File(destination).toPath(),StandardCopyOption.REPLACE_EXISTING);
@@ -484,13 +500,13 @@ public class createproject extends javax.swing.JFrame {
 
     private void updateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateActionPerformed
         if (pid.getText().isEmpty() || location.getText().isEmpty() || contact.getText().isEmpty()
-            || cname.getText().isEmpty() || syear.getDate() == null || endyear.getDate() == null) {
+            || cname.getText().isEmpty() || date.getDate() == null || endyear.getDate() == null) {
             JOptionPane.showMessageDialog(null, "All fields are required!");
         } else {
             try {
                 dbConnector dbc = new dbConnector();
                 java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
-                String formattedStartDate = sdf.format(syear.getDate());
+                String formattedStartDate = sdf.format(date.getDate());
                 String formattedEndDate = sdf.format(endyear.getDate());
 
                 String query = "UPDATE tbl_projects SET u_id = ?, u_fn = ?, p_name = ?, p_date = ?, "
@@ -572,6 +588,14 @@ public class createproject extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_selectActionPerformed
 
+    private void budgetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_budgetActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_budgetActionPerformed
+
+    private void dateMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dateMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_dateMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -614,6 +638,7 @@ public class createproject extends javax.swing.JFrame {
     public javax.swing.JComboBox<String> client_name;
     public javax.swing.JTextField cname;
     public javax.swing.JTextField contact;
+    public com.toedter.calendar.JDateChooser date;
     public javax.swing.JComboBox<String> employee;
     public com.toedter.calendar.JDateChooser endyear;
     private javax.swing.JLabel image;
@@ -642,7 +667,6 @@ public class createproject extends javax.swing.JFrame {
     public javax.swing.JComboBox<String> pstatus;
     private javax.swing.JButton removed;
     private javax.swing.JButton select;
-    public com.toedter.calendar.JDateChooser syear;
     public javax.swing.JTextField uid;
     public javax.swing.JButton update;
     // End of variables declaration//GEN-END:variables

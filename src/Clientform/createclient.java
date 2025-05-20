@@ -23,6 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -44,6 +45,7 @@ public class createclient extends javax.swing.JFrame {
         populateComboBoxes();
          
     } 
+    
    
    private void populateComboBoxes() {
     dbConnector db = new dbConnector();
@@ -71,7 +73,9 @@ public class createclient extends javax.swing.JFrame {
     } catch (SQLException ex) {
         JOptionPane.showMessageDialog(null, "Error fetching data: " + ex.getMessage());
     }
-    }
+    
+}
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -212,7 +216,7 @@ public class createclient extends javax.swing.JFrame {
         contact.add(update, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 40, -1, 41));
 
         jLabel2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel2.setText("Worker name");
+        jLabel2.setText("Client name");
         contact.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 190, -1, -1));
 
         uid.setEnabled(false);
@@ -605,12 +609,12 @@ public class createclient extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton Add;
-    private javax.swing.JTextField Email;
-    private javax.swing.JComboBox<String> Gender;
-    private javax.swing.JComboBox<String> assignner;
+    public javax.swing.JButton Add;
+    public javax.swing.JTextField Email;
+    public javax.swing.JComboBox<String> Gender;
+    protected javax.swing.JComboBox<String> assignner;
     private javax.swing.JPanel contact;
-    private javax.swing.JComboBox<String> cstatus;
+    public javax.swing.JComboBox<String> cstatus;
     private com.toedter.calendar.JDateChooser date;
     private com.toedter.calendar.JDateChooser duedate;
     public javax.swing.JTextField fn;
@@ -630,10 +634,10 @@ public class createclient extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JTextField pid;
+    public javax.swing.JTextField pid;
     private javax.swing.JComboBox<String> pname;
-    private javax.swing.JTextField uid;
-    private javax.swing.JButton update;
+    public javax.swing.JTextField uid;
+    public javax.swing.JButton update;
     private javax.swing.JTextField worker;
     // End of variables declaration//GEN-END:variables
 }

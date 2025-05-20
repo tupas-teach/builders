@@ -543,10 +543,8 @@ public boolean duplicateCheck(){
           lf.setVisible(true);
           this.dispose();
       }else{
-          pass.setText("");
           em.setText(""+sess.getEmail());
           uid.setText(""+sess.getId());
-           
            
       }   
         

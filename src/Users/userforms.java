@@ -9,6 +9,7 @@ package Users;
 import Clientform.clientproject;
 import LoginForm.loginform;
 import ProjectReports.projectReports;
+import admin.adminform;
 import admin.createadmin;
 import admin.createproject;
 import config.Session;
@@ -165,8 +166,8 @@ public class userforms extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowActivated
 
     private void UserMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_UserMouseClicked
-        createadmin ca = new createadmin();
-        ca.setVisible(true);
+        adminform ad = new adminform();
+        ad.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_UserMouseClicked
 

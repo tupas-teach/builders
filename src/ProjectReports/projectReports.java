@@ -182,7 +182,12 @@ public class projectReports extends javax.swing.JFrame {
         jPanel2.add(update, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 310, 130, 40));
 
         clear1.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        clear1.setText("CLEAR");
+        clear1.setText("PRINT");
+        clear1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clear1ActionPerformed(evt);
+            }
+        });
         jPanel2.add(clear1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 370, 130, 40));
 
         aproved.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
@@ -391,6 +396,10 @@ try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
         // TODO add your handling code here:
     }//GEN-LAST:event_table_projectMouseClicked
 
+    private void clear1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clear1ActionPerformed
+       
+    }//GEN-LAST:event_clear1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -429,7 +438,7 @@ try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton add;
     private javax.swing.JButton aproved;
-    private javax.swing.JButton clear;
+    public javax.swing.JButton clear;
     private javax.swing.JButton clear1;
     private javax.swing.JButton decline;
     private javax.swing.JLabel jLabel1;

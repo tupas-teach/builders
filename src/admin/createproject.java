@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -194,6 +195,10 @@ public class createproject extends javax.swing.JFrame {
         budget = new javax.swing.JTextField();
         pid = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        image = new javax.swing.JLabel();
+        removed = new javax.swing.JButton();
+        select = new javax.swing.JButton();
         jLabel13 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -229,33 +234,42 @@ public class createproject extends javax.swing.JFrame {
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel3.setBackground(new java.awt.Color(153, 153, 255));
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel3.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel3.setText("Project Name");
+        jPanel3.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(24, 143, -1, -1));
 
         jLabel4.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel4.setText("Project Start");
+        jPanel3.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(34, 195, -1, -1));
 
         jLabel5.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel5.setText("Project Budget");
+        jPanel3.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 243, -1, -1));
 
         location.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 locationActionPerformed(evt);
             }
         });
+        jPanel3.add(location, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 280, 258, 35));
 
         jLabel6.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel6.setText("Location");
+        jPanel3.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(67, 284, -1, -1));
 
         jLabel7.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel7.setText("Project End");
+        jPanel3.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(41, 343, -1, -1));
 
         jLabel10.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel10.setText("Contact Number");
+        jPanel3.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 457, -1, -1));
 
         jLabel11.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel11.setText("Client Name");
+        jPanel3.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(35, 396, -1, 31));
 
         client_name.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         client_name.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "select", " " }));
@@ -264,9 +278,11 @@ public class createproject extends javax.swing.JFrame {
                 client_nameActionPerformed(evt);
             }
         });
+        jPanel3.add(client_name, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 392, 258, 38));
 
         jLabel12.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel12.setText("Project Status");
+        jPanel3.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 504, -1, 31));
 
         pstatus.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         pstatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select", "Available", "Out Project", "Active Project", "Pending Project", "aproved" }));
@@ -275,18 +291,27 @@ public class createproject extends javax.swing.JFrame {
                 pstatusActionPerformed(evt);
             }
         });
+        jPanel3.add(pstatus, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 500, 258, 38));
 
         pname.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         pname.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select", "project 1 owner house", "project 2 apartments", "project 3 village", "project 4 condominiums" }));
+        jPanel3.add(pname, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 137, 258, 35));
+        jPanel3.add(contact, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 447, 258, 47));
+        jPanel3.add(endyear, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 333, 258, 41));
+        jPanel3.add(syear, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 182, 258, 39));
+        jPanel3.add(uid, new org.netbeans.lib.awtextra.AbsoluteConstraints(147, 54, 257, 36));
 
         jLabel8.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel8.setText("User ID");
+        jPanel3.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(79, 59, -1, -1));
 
         jLabel9.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel9.setText("Project Maker");
+        jPanel3.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(22, 102, -1, -1));
 
         jButton5.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jButton5.setText("CLEAR");
+        jPanel3.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(466, 68, 115, 40));
 
         jButton6.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jButton6.setText("CANCEL");
@@ -295,6 +320,7 @@ public class createproject extends javax.swing.JFrame {
                 jButton6MouseClicked(evt);
             }
         });
+        jPanel3.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(627, 68, 115, 40));
 
         update.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         update.setText("UPDATE");
@@ -304,6 +330,7 @@ public class createproject extends javax.swing.JFrame {
                 updateActionPerformed(evt);
             }
         });
+        jPanel3.add(update, new org.netbeans.lib.awtextra.AbsoluteConstraints(627, 17, 115, 40));
 
         Add.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         Add.setText("ADD");
@@ -312,6 +339,7 @@ public class createproject extends javax.swing.JFrame {
                 AddActionPerformed(evt);
             }
         });
+        jPanel3.add(Add, new org.netbeans.lib.awtextra.AbsoluteConstraints(466, 17, 115, 40));
 
         employee.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         employee.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select", " " }));
@@ -320,126 +348,45 @@ public class createproject extends javax.swing.JFrame {
                 employeeActionPerformed(evt);
             }
         });
+        jPanel3.add(employee, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 96, 258, 35));
+        jPanel3.add(budget, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 239, 258, 35));
+        jPanel3.add(pid, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 0, 257, 36));
 
         jLabel2.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel2.setText("Project ID");
+        jPanel3.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(57, 5, -1, -1));
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel5)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel6)
-                            .addComponent(jLabel7)
-                            .addComponent(jLabel11)
-                            .addComponent(jLabel12)
-                            .addComponent(jLabel10))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(location)
-                            .addComponent(client_name, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(pstatus, 0, 258, Short.MAX_VALUE)
-                            .addComponent(endyear, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(contact)
-                            .addComponent(syear, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(budget)))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel9))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(pname, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(employee, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(pid, javax.swing.GroupLayout.PREFERRED_SIZE, 257, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(1, 1, 1))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel8)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(uid, javax.swing.GroupLayout.PREFERRED_SIZE, 257, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(62, 62, 62)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE)
-                    .addComponent(Add, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(46, 46, 46)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(update, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE)
-                    .addComponent(jButton6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(66, Short.MAX_VALUE))
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(image, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
+                .addContainerGap())
         );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(pid, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(uid, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel8))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel9)
-                            .addComponent(employee, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(update, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(Add, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)))
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(pname, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3))
-                .addGap(10, 10, 10)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(13, 13, 13)
-                        .addComponent(jLabel4))
-                    .addComponent(syear, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(budget, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(location, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6))
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(endyear, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(28, 28, 28)
-                        .addComponent(jLabel7)))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(client_name, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(contact, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel10))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(pstatus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(43, Short.MAX_VALUE))
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(image, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
+                .addContainerGap())
         );
+
+        jPanel3.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(466, 156, -1, -1));
+
+        removed.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        removed.setText("Remove");
+        jPanel3.add(removed, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 380, 110, 30));
+
+        select.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        select.setText("Select");
+        select.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectActionPerformed(evt);
+            }
+        });
+        jPanel3.add(select, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 380, 90, 30));
 
         jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 70, 810, 590));
 
@@ -454,6 +401,7 @@ public class createproject extends javax.swing.JFrame {
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 0, 810, 630));
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
@@ -490,8 +438,8 @@ public class createproject extends javax.swing.JFrame {
                     String formattedStartDate = sdf.format(syear.getDate());
                     String formattedEndDate = sdf.format(endyear.getDate());
 
-                    String query = "INSERT INTO tbl_projects (u_id , u_fn,p_name, p_date, p_location, p_budget, p_updatedate, u_type, p_contact, p_status) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    String query = "INSERT INTO tbl_projects (u_id , u_fn,p_name, p_date, p_location, p_budget, p_updatedate, u_type, p_contact, p_status,p_image) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
 
                     PreparedStatement ps = dbc.getConnection().prepareStatement(query);
                     ps.setString(1, uid.getText());
@@ -504,7 +452,21 @@ public class createproject extends javax.swing.JFrame {
                     ps.setString(8, client_name.getSelectedItem().toString());
                     ps.setString(9, contact.getText());
                     ps.setString(10, pstatus.getSelectedItem().toString());
+                      ps.setString(11, destination);
                 
+                      try{
+                Files.copy(selectedFile.toPath(),new File(destination).toPath(),StandardCopyOption.REPLACE_EXISTING);
+                JOptionPane.showMessageDialog(null, "Register Success!");
+                adminform af = new adminform();
+                af.setVisible(true);
+                this.dispose();
+
+            }catch(IOException ex){
+                System.out.println("Insert image Error:"+ ex);
+            
+            
+
+            }     JOptionPane.showMessageDialog(null, "Connection Error!");
 
                     ps.executeUpdate();
                     JOptionPane.showMessageDialog(null, "Successfully Added!");
@@ -533,7 +495,7 @@ public class createproject extends javax.swing.JFrame {
 
                 String query = "UPDATE tbl_projects SET u_id = ?, u_fn = ?, p_name = ?, p_date = ?, "
                 + "p_location = ?, p_budget = ?, p_updatedate = ?, u_type = ?, "
-                + "p_contact = ?, p_status = ? WHERE p_id = ?";
+                + "p_contact = ?, p_status = ? , p_image = ? WHERE p_id = ?";
                 PreparedStatement ps = dbc.getConnection().prepareStatement(query);
                  ps.setString(1, uid.getText());
                      ps.setString(2, employee.getSelectedItem().toString());
@@ -545,6 +507,7 @@ public class createproject extends javax.swing.JFrame {
                     ps.setString(8, client_name.getSelectedItem().toString());
                     ps.setString(9, contact.getText());
                     ps.setString(10, pstatus.getSelectedItem().toString());
+                     ps.setString(11, destination);
 
                 ps.executeUpdate();
                 JOptionPane.showMessageDialog(null, "Updated Successfully!");
@@ -585,6 +548,30 @@ public class createproject extends javax.swing.JFrame {
        this.dispose();
     }//GEN-LAST:event_jLabel13MouseClicked
 
+    private void selectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+        int returnValue = fileChooser.showOpenDialog(null);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            try {
+                selectedFile = fileChooser.getSelectedFile();
+                destination = "src/userimages/" + selectedFile.getName();
+                path  = selectedFile.getAbsolutePath();
+
+                if(FileExistenceChecker(path) == 1){
+                    JOptionPane.showMessageDialog(null, "File Already Exist, Rename or Choose another!");
+                    destination = "";
+                    path="";
+                }else{
+                    image.setIcon(ResizeImage(path, null, image));
+                    select.setVisible(false);
+                    removed.setVisible(true);
+                }
+            } catch (Exception ex) {
+                System.out.println("File Error!");
+            }
+        }
+    }//GEN-LAST:event_selectActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -622,13 +609,14 @@ public class createproject extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton Add;
-    private javax.swing.JTextField budget;
-    private javax.swing.JComboBox<String> client_name;
+    public javax.swing.JButton Add;
+    public javax.swing.JTextField budget;
+    public javax.swing.JComboBox<String> client_name;
     public javax.swing.JTextField cname;
-    private javax.swing.JTextField contact;
-    private javax.swing.JComboBox<String> employee;
-    private com.toedter.calendar.JDateChooser endyear;
+    public javax.swing.JTextField contact;
+    public javax.swing.JComboBox<String> employee;
+    public com.toedter.calendar.JDateChooser endyear;
+    private javax.swing.JLabel image;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JLabel jLabel1;
@@ -646,13 +634,16 @@ public class createproject extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JTextField location;
+    public javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    public javax.swing.JTextField location;
     public javax.swing.JTextField pid;
-    private javax.swing.JComboBox<String> pname;
-    private javax.swing.JComboBox<String> pstatus;
-    private com.toedter.calendar.JDateChooser syear;
-    private javax.swing.JTextField uid;
-    private javax.swing.JButton update;
+    public javax.swing.JComboBox<String> pname;
+    public javax.swing.JComboBox<String> pstatus;
+    private javax.swing.JButton removed;
+    private javax.swing.JButton select;
+    public com.toedter.calendar.JDateChooser syear;
+    public javax.swing.JTextField uid;
+    public javax.swing.JButton update;
     // End of variables declaration//GEN-END:variables
 }

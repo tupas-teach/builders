@@ -45,7 +45,7 @@ public class createclient extends javax.swing.JFrame {
          
     } 
    
-    private void populateComboBoxes() {
+   private void populateComboBoxes() {
     dbConnector db = new dbConnector();
     try {
         String sqlProjects = "SELECT p_name FROM tbl_projects"; 

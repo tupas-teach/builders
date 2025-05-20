@@ -37,19 +37,39 @@ public class loginform extends javax.swing.JFrame {
 
    static String status;
     static String type;
-    
-    public static void logLoginActivity(int userId, String action) {
-        dbConnector connector = new dbConnector();
-        String insertLog = "INSERT INTO tbl_logs (u_id, l_action) VALUES (?, ?)";
-
-        try (PreparedStatement pst = connector.getConnection().prepareStatement(insertLog)) {
-            pst.setInt(1, userId);
-            pst.setString(2, action);
-            pst.executeUpdate();
-        } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, "Failed to log login activity", ex);
+    public static boolean userExists(int userId) {
+    dbConnector connector = new dbConnector();
+    String query = "SELECT COUNT(*) FROM tbl_user WHERE u_id = ?";
+    try (PreparedStatement pst = connector.getConnection().prepareStatement(query)) {
+        pst.setInt(1, userId);
+        ResultSet rs = pst.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1) > 0;
         }
+    } catch (SQLException ex) {
+        LOGGER.log(Level.SEVERE, "Failed to check user existence", ex);
     }
+    return false;
+}
+
+public static void logLoginActivity(int userId, String action) {
+    if (!userExists(userId)) {
+        LOGGER.log(Level.WARNING, "Cannot log activity: userId " + userId + " does not exist");
+        return;
+    }
+
+    dbConnector connector = new dbConnector();
+    String insertLog = "INSERT INTO tbl_logs (u_id, l_action) VALUES (?, ?)";
+
+    try (PreparedStatement pst = connector.getConnection().prepareStatement(insertLog)) {
+        pst.setInt(1, userId);
+        pst.setString(2, action);
+        pst.executeUpdate();
+    } catch (SQLException ex) {
+        LOGGER.log(Level.SEVERE, "Failed to log login activity", ex);
+    }
+}
+
 
     
     public static boolean loginAcc(String username, String password) {

@@ -9,7 +9,7 @@ package Users;
 import Clientform.clientproject;
 import LoginForm.loginform;
 import ProjectReports.projectReports;
-import admin.adminform;
+import admin.adminforms;
 import admin.createadmin;
 import admin.createproject;
 import config.Session;
@@ -83,6 +83,11 @@ public class userforms extends javax.swing.JFrame {
         });
 
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/supervisor.png"))); // NOI18N
+        jLabel3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel3MouseClicked(evt);
+            }
+        });
 
         projects.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/project.png"))); // NOI18N
         projects.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -166,7 +171,7 @@ public class userforms extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowActivated
 
     private void UserMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_UserMouseClicked
-        adminform ad = new adminform();
+        adminforms ad = new adminforms();
         ad.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_UserMouseClicked
@@ -176,6 +181,10 @@ public class userforms extends javax.swing.JFrame {
         cp.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_projectsMouseClicked
+
+    private void jLabel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseClicked
+     
+    }//GEN-LAST:event_jLabel3MouseClicked
 
     /**
      * @param args the command line arguments

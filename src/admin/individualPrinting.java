@@ -119,7 +119,7 @@ public class individualPrinting extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 848, 80));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 10, 848, 80));
 
         jPanel2.setBackground(new java.awt.Color(153, 153, 255));
 
@@ -319,7 +319,7 @@ public class individualPrinting extends javax.swing.JFrame {
     }//GEN-LAST:event_jToggleButton1ActionPerformed
 
     private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
-       adminform af = new adminform();
+       adminforms af = new adminforms();
        af.setVisible(true);
        this.dispose();
     }//GEN-LAST:event_jLabel4MouseClicked

@@ -487,7 +487,7 @@ public boolean duplicateCheck(){
             try{
                 Files.copy(selectedFile.toPath(),new File(destination).toPath(),StandardCopyOption.REPLACE_EXISTING);
                 JOptionPane.showMessageDialog(null, "Register Success!");
-                adminform af = new adminform();
+                adminforms af = new adminforms();
                 af.setVisible(true);
                 this.dispose();
 
@@ -528,7 +528,7 @@ public boolean duplicateCheck(){
           } catch (NoSuchAlgorithmException ex) {
                System.out.println(""+ ex);
           }
-        adminform af = new adminform();
+        adminforms af = new adminforms();
         af.setVisible(true);
         this.dispose();
                 
@@ -600,7 +600,7 @@ public boolean duplicateCheck(){
     }//GEN-LAST:event_mdnActionPerformed
 
     private void cancelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cancelMouseClicked
-        adminform a = new adminform();
+        adminforms a = new adminforms();
           JOptionPane.showMessageDialog(null, "Back to admin Form!");
         a.setVisible(true);
         this.dispose();

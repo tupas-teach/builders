@@ -15,6 +15,26 @@ public class Session {
     private int id;
       private int c_id;
     private int p_id;
+    private String p_date;
+    private String p_updatedate;
+    private String p_ontact;
+    private String p_location;
+
+    public String getP_location() {
+        return p_location;
+    }
+
+    public void setP_location(String p_location) {
+        this.p_location = p_location;
+    }
+
+    public String getP_ontact() {
+        return p_ontact;
+    }
+
+    public void setP_ontact(String p_ontact) {
+        this.p_ontact = p_ontact;
+    }
     private String fn;
     private String middle;
     private String ln;
@@ -47,20 +67,21 @@ public class Session {
          this.id = id;
    
     }
-    public int getPId(){
-        return p_id ;
+   public int getP_id() {
+        return p_id;
     }
-    
-     public void setPId(int p_id) {
-         this.p_id = p_id;
-     }
+
+    public void setP_id(int p_id) {
+        this.p_id = p_id;
+    }
      
-      public int getCId(){
-        return c_id ;
+     public int getC_id() {
+        return c_id;
     }
-       public void setCId(int c_id) {
-         this.c_id = c_id;
-     }
+
+    public void setC_id(int c_id) {
+        this.c_id = c_id;
+    }
     public String getFn() {
         return fn;
     }
@@ -124,6 +145,22 @@ public class Session {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+    
+     public String getP_date() {
+        return p_date;
+    }
+
+    public void setP_date(String p_date) {
+        this.p_date = p_date;
+    }
+    
+     public String getP_updatedate() {
+        return p_updatedate;
+    }
+
+    public void setP_updatedate(String p_updatedate) {
+        this.p_updatedate = p_updatedate;
     }
 
     

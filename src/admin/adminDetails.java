@@ -46,7 +46,7 @@ public class adminDetails extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         ln = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
-        md = new javax.swing.JTextField();
+        mdn = new javax.swing.JTextField();
         un = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
@@ -155,7 +155,7 @@ public class adminDetails extends javax.swing.JFrame {
                                 .addComponent(contact)
                                 .addContainerGap())
                             .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(md)
+                                .addComponent(mdn)
                                 .addGap(12, 12, 12))))))
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -203,7 +203,7 @@ public class adminDetails extends javax.swing.JFrame {
                     .addComponent(jLabel6))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(md, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(mdn, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel7))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -302,7 +302,7 @@ public class adminDetails extends javax.swing.JFrame {
         id.setText(""+sess.getId());
            
                fn.setText(""+sess.getFn());
-               md.setText(""+sess.getMiddle());
+               mdn.setText(""+sess.getMiddle());
                ln.setText(""+sess.getLn());
                un.setText(""+sess.getUsername());
                contact.setText(""+sess.getContact());
@@ -383,7 +383,7 @@ public class adminDetails extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JTextField ln;
-    private javax.swing.JTextField md;
+    private javax.swing.JTextField mdn;
     private javax.swing.JComboBox<String> type;
     private javax.swing.JTextField un;
     // End of variables declaration//GEN-END:variables

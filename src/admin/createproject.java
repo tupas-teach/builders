@@ -29,6 +29,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.table.TableModel;
 
 
 /**
@@ -116,7 +117,7 @@ public class createproject extends javax.swing.JFrame {
         File file = new File(path);
         String fileName = file.getName();
         
-        Path filePath = Paths.get("src/u_images", fileName);
+        Path filePath = Paths.get("src/userimages", fileName);
         boolean fileExists = Files.exists(filePath);
         
         if (fileExists) {
@@ -191,7 +192,7 @@ public class createproject extends javax.swing.JFrame {
         uid = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        jButton5 = new javax.swing.JButton();
+        print = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
         update = new javax.swing.JButton();
         Add = new javax.swing.JButton();
@@ -229,7 +230,7 @@ public class createproject extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jLabel1)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 130, Short.MAX_VALUE))
         );
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 630));
@@ -309,6 +310,8 @@ public class createproject extends javax.swing.JFrame {
             }
         });
         jPanel3.add(date, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 182, 258, 39));
+
+        uid.setEnabled(false);
         jPanel3.add(uid, new org.netbeans.lib.awtextra.AbsoluteConstraints(147, 54, 257, 36));
 
         jLabel8.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
@@ -319,9 +322,14 @@ public class createproject extends javax.swing.JFrame {
         jLabel9.setText("Project Maker");
         jPanel3.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(22, 102, -1, -1));
 
-        jButton5.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        jButton5.setText("CLEAR");
-        jPanel3.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(466, 68, 115, 40));
+        print.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        print.setText("Print");
+        print.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                printActionPerformed(evt);
+            }
+        });
+        jPanel3.add(print, new org.netbeans.lib.awtextra.AbsoluteConstraints(466, 68, 115, 40));
 
         jButton6.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jButton6.setText("CANCEL");
@@ -366,6 +374,8 @@ public class createproject extends javax.swing.JFrame {
             }
         });
         jPanel3.add(budget, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 239, 258, 35));
+
+        pid.setEnabled(false);
         jPanel3.add(pid, new org.netbeans.lib.awtextra.AbsoluteConstraints(146, 0, 257, 36));
 
         jLabel2.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
@@ -393,7 +403,12 @@ public class createproject extends javax.swing.JFrame {
 
         removed.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         removed.setText("Remove");
-        jPanel3.add(removed, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 380, 110, 30));
+        removed.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removedActionPerformed(evt);
+            }
+        });
+        jPanel3.add(removed, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 400, 110, 40));
 
         select.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         select.setText("Select");
@@ -402,9 +417,9 @@ public class createproject extends javax.swing.JFrame {
                 selectActionPerformed(evt);
             }
         });
-        jPanel3.add(select, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 380, 90, 30));
+        jPanel3.add(select, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 400, 90, 40));
 
-        jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 70, 810, 590));
+        jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 30, 810, 600));
 
         jLabel13.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/back (1).png"))); // NOI18N
         jLabel13.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -429,9 +444,11 @@ public class createproject extends javax.swing.JFrame {
           lf.setVisible(true);
           this.dispose();
       }else{
-          employee.setSelectedItem(""+sess.getFn());
-          pid.setText(""+sess.getPId());
+          
+          pid.setText(""+sess.getP_id());
           uid.setText(""+sess.getId());
+          
+          
           
           
       }
@@ -468,13 +485,14 @@ public class createproject extends javax.swing.JFrame {
                     ps.setString(8, client_name.getSelectedItem().toString());
                     ps.setString(9, contact.getText());
                     ps.setString(10, pstatus.getSelectedItem().toString());
+                     ps.setString(11, destination);
                 
                 
                       try{
                 Files.copy(selectedFile.toPath(),new File(destination).toPath(),StandardCopyOption.REPLACE_EXISTING);
-                JOptionPane.showMessageDialog(null, "Register Success!");
-                adminform af = new adminform();
-                af.setVisible(true);
+                JOptionPane.showMessageDialog(null, "Projects Success!");
+                projectReports pj = new projectReports();
+                pj.setVisible(true);
                 this.dispose();
 
             }catch(IOException ex){
@@ -500,7 +518,7 @@ public class createproject extends javax.swing.JFrame {
 
     private void updateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateActionPerformed
         if (pid.getText().isEmpty() || location.getText().isEmpty() || contact.getText().isEmpty()
-            || cname.getText().isEmpty() || date.getDate() == null || endyear.getDate() == null) {
+            || employee.getSelectedItem().equals("")|| date.getDate() == null || endyear.getDate() == null) {
             JOptionPane.showMessageDialog(null, "All fields are required!");
         } else {
             try {
@@ -509,11 +527,11 @@ public class createproject extends javax.swing.JFrame {
                 String formattedStartDate = sdf.format(date.getDate());
                 String formattedEndDate = sdf.format(endyear.getDate());
 
-                String query = "UPDATE tbl_projects SET u_id = ?, u_fn = ?, p_name = ?, p_date = ?, "
+                String query = "UPDATE tbl_projects SET  u_fn = ?, p_name = ?, p_date = ?, "
                 + "p_location = ?, p_budget = ?, p_updatedate = ?, u_type = ?, "
                 + "p_contact = ?, p_status = ? , p_image = ? WHERE p_id = ?";
                 PreparedStatement ps = dbc.getConnection().prepareStatement(query);
-                 ps.setString(1, uid.getText());
+                 ps.setString(1, pid.getText());
                      ps.setString(2, employee.getSelectedItem().toString());
                     ps.setString(3, pname.getSelectedItem().toString());
                     ps.setString(4, formattedStartDate);
@@ -524,7 +542,7 @@ public class createproject extends javax.swing.JFrame {
                     ps.setString(9, contact.getText());
                     ps.setString(10, pstatus.getSelectedItem().toString());
                      ps.setString(11, destination);
-
+                    
                 ps.executeUpdate();
                 JOptionPane.showMessageDialog(null, "Updated Successfully!");
 
@@ -559,7 +577,7 @@ public class createproject extends javax.swing.JFrame {
     }//GEN-LAST:event_locationActionPerformed
 
     private void jLabel13MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel13MouseClicked
-       adminform ad = new adminform();
+       adminforms ad = new adminforms();
        ad.setVisible(true);
        this.dispose();
     }//GEN-LAST:event_jLabel13MouseClicked
@@ -595,6 +613,19 @@ public class createproject extends javax.swing.JFrame {
     private void dateMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dateMouseClicked
         // TODO add your handling code here:
     }//GEN-LAST:event_dateMouseClicked
+
+    private void printActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printActionPerformed
+      
+    }//GEN-LAST:event_printActionPerformed
+
+    private void removedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removedActionPerformed
+       removed.setEnabled(false);
+     select.setEnabled(true);
+     image.setIcon(null);
+      destination ="";
+path ="";
+
+    }//GEN-LAST:event_removedActionPerformed
 
     /**
      * @param args the command line arguments
@@ -641,8 +672,7 @@ public class createproject extends javax.swing.JFrame {
     public com.toedter.calendar.JDateChooser date;
     public javax.swing.JComboBox<String> employee;
     public com.toedter.calendar.JDateChooser endyear;
-    private javax.swing.JLabel image;
-    private javax.swing.JButton jButton5;
+    public javax.swing.JLabel image;
     private javax.swing.JButton jButton6;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -664,9 +694,10 @@ public class createproject extends javax.swing.JFrame {
     public javax.swing.JTextField location;
     public javax.swing.JTextField pid;
     public javax.swing.JComboBox<String> pname;
+    private javax.swing.JButton print;
     public javax.swing.JComboBox<String> pstatus;
-    private javax.swing.JButton removed;
-    private javax.swing.JButton select;
+    public javax.swing.JButton removed;
+    public javax.swing.JButton select;
     public javax.swing.JTextField uid;
     public javax.swing.JButton update;
     // End of variables declaration//GEN-END:variables

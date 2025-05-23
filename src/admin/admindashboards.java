@@ -161,7 +161,7 @@ public class admindashboards extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
-        adminform af = new adminform();
+        adminforms af = new adminforms();
         af.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jLabel4MouseClicked

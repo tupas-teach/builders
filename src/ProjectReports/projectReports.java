@@ -6,8 +6,10 @@
 package ProjectReports;
 
 import Clientform.clientproject;
-import admin.adminform;
+import LoginForm.loginform;
+import admin.adminforms;
 import admin.createadmin;
+import static admin.createadmin.getHeightFromWidth;
 import admin.createproject;
 import admin.individualPrinting;
 import config.Session;
@@ -15,6 +17,7 @@ import config.dbConnector;
 import java.awt.Color;
 import static java.awt.Color.gray;
 import static java.awt.Color.red;
+import java.awt.Image;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -26,6 +29,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.sql.PreparedStatement;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JFileChooser;
 
 
 /**
@@ -44,26 +50,64 @@ public class projectReports extends javax.swing.JFrame {
     Color bodycolor = new Color(153,153,255);
     
 
-     public void displayData(){
-        try{
-            dbConnector dbc = new dbConnector();
-            ResultSet rs = dbc.getData("SELECT p_id,u_fn, p_name, u_type, p_date, p_updatedate, p_location, p_status,approval FROM tbl_projects");
-            table_project.setModel(DbUtils.resultSetToTableModel(rs));
-            table_project.getColumnModel().getColumn(0).setHeaderValue("P ID");
-            table_project.getColumnModel().getColumn(1).setHeaderValue("Maker Name");
-            table_project.getColumnModel().getColumn(2).setHeaderValue("Project Name");
-            table_project.getColumnModel().getColumn(3).setHeaderValue("Client Name");
-            table_project.getColumnModel().getColumn(4).setHeaderValue("Start Date");
-            table_project.getColumnModel().getColumn(5).setHeaderValue("Due Date");
-            table_project.getColumnModel().getColumn(6).setHeaderValue("Location");
-            table_project.getColumnModel().getColumn(7).setHeaderValue("Status");
-             table_project.getColumnModel().getColumn(8).setHeaderValue("Approval");
-            
-        }catch(SQLException ex){
-                    System.out.println("Errors:"+ex.getMessage());
-      
+     public void displayData() {
+    Session sess = Session.getInstance();
+    String userType = sess.getType(); // Get logged-in user type
+    dbConnector dbc = new dbConnector();
+    ResultSet rs = null;
+
+    try {
+        // Get all projects regardless of user
+        rs = dbc.getData("SELECT p_id, u_fn, p_name, u_type, p_date, p_updatedate, p_location, p_status, approval FROM tbl_projects");
+
+        table_project.setModel(DbUtils.resultSetToTableModel(rs));
+
+        // Set headers
+        table_project.getColumnModel().getColumn(0).setHeaderValue("P ID");
+        table_project.getColumnModel().getColumn(1).setHeaderValue("Maker Name");
+        table_project.getColumnModel().getColumn(2).setHeaderValue("Project Name");
+        table_project.getColumnModel().getColumn(3).setHeaderValue("Client Name");
+        table_project.getColumnModel().getColumn(4).setHeaderValue("Start Date");
+        table_project.getColumnModel().getColumn(5).setHeaderValue("Due Date");
+        table_project.getColumnModel().getColumn(6).setHeaderValue("Location");
+        table_project.getColumnModel().getColumn(7).setHeaderValue("Status");
+        table_project.getColumnModel().getColumn(8).setHeaderValue("Approval");
+
+        if ("employee".equalsIgnoreCase(userType)) {
+            // Hide the u_fn column (index 1) for employees
+            table_project.getColumnModel().getColumn(1).setMinWidth(0);
+            table_project.getColumnModel().getColumn(1).setMaxWidth(0);
+            table_project.getColumnModel().getColumn(1).setWidth(0);
+        } else {
+            // Show the column for others
+            table_project.getColumnModel().getColumn(1).setMinWidth(100);
+            table_project.getColumnModel().getColumn(1).setMaxWidth(200);
+            table_project.getColumnModel().getColumn(1).setWidth(150);
         }
+
+    } catch (SQLException ex) {
+        System.out.println("Error: " + ex.getMessage());
     }
+}
+
+
+
+        
+        public  ImageIcon ResizeImage(String ImagePath, byte[] pic, JLabel label) {
+    ImageIcon MyImage = null;
+        if(ImagePath !=null){
+            MyImage = new ImageIcon(ImagePath);
+        }else{
+            MyImage = new ImageIcon(pic);
+        }
+        
+    int newHeight = getHeightFromWidth(ImagePath, label.getWidth());
+
+    Image img = MyImage.getImage();
+    Image newImg = img.getScaledInstance(label.getWidth(), newHeight, Image.SCALE_SMOOTH);
+    ImageIcon image = new ImageIcon(newImg);
+    return image;
+        }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -79,7 +123,7 @@ public class projectReports extends javax.swing.JFrame {
         clear = new javax.swing.JButton();
         add = new javax.swing.JButton();
         update = new javax.swing.JButton();
-        clear1 = new javax.swing.JButton();
+        print = new javax.swing.JButton();
         aproved = new javax.swing.JButton();
         decline = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
@@ -129,7 +173,7 @@ public class projectReports extends javax.swing.JFrame {
                 .addGap(0, 100, Short.MAX_VALUE))
         );
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-1, 0, 500, 600));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -10, 500, 600));
 
         jPanel2.setBackground(new java.awt.Color(153, 153, 255));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -173,7 +217,7 @@ public class projectReports extends javax.swing.JFrame {
         jPanel2.add(add, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 250, 130, 40));
 
         update.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        update.setText("UPDATE");
+        update.setText("EDIT");
         update.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 updateActionPerformed(evt);
@@ -181,14 +225,14 @@ public class projectReports extends javax.swing.JFrame {
         });
         jPanel2.add(update, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 310, 130, 40));
 
-        clear1.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        clear1.setText("PRINT");
-        clear1.addActionListener(new java.awt.event.ActionListener() {
+        print.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        print.setText("PRINT");
+        print.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                clear1ActionPerformed(evt);
+                printActionPerformed(evt);
             }
         });
-        jPanel2.add(clear1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 370, 130, 40));
+        jPanel2.add(print, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 370, 130, 40));
 
         aproved.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         aproved.setText("APROVED");
@@ -227,11 +271,64 @@ public class projectReports extends javax.swing.JFrame {
     }//GEN-LAST:event_table_productMouseClicked
 
     private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
-      
+        Session sess = Session.getInstance();
+        if(sess.getId()==0){
+            JOptionPane.showMessageDialog(null,"No account, Login First");
+             loginform l = new loginform();
+            l.setVisible(true);
+            this.dispose();
+        }else{
+                
+        }      
     }//GEN-LAST:event_formWindowActivated
 
     private void updateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateActionPerformed
-        // TODO add your handling code here:
+    int rowIndex = table_project.getSelectedRow();
+        if(rowIndex <0){
+            JOptionPane.showMessageDialog(null, "Please select an Item!");
+        }else{
+            try{
+                dbConnector dbc = new dbConnector();
+                TableModel tbl =  table_project.getModel();
+                ResultSet rs = dbc.getData("SELECT *FROM tbl_projects WHERE p_id ='"+tbl.getValueAt(rowIndex, 0)+"'");
+                if(rs.next()){
+                    createproject cuf = new createproject();
+                    cuf.pid.setText("");
+                    cuf.uid.setText("");
+                    cuf.employee.setSelectedItem("");
+                    cuf.pname.setSelectedItem("");
+                    cuf.date.getDate();
+                    cuf.budget.setText("");
+                    cuf.location.setText("");
+                    cuf.endyear.getDate();
+                    cuf.client_name.setSelectedItem("");
+                    cuf.contact.setText("");
+                    cuf.pstatus.setSelectedItem("");
+                    cuf.Add.setEnabled(false);
+                    cuf.update.setEnabled(true);
+                    cuf.image.setIcon(cuf.ResizeImage(rs.getString("p_image"), null, cuf.image));
+                    cuf.oldpath = rs.getString("p_image");
+                    cuf.path =  rs.getString("p_image");
+                    cuf.destination =  rs.getString("p_image");
+                    cuf.select.setEnabled(false);
+                    cuf.removed.setEnabled(true);
+                    cuf.setVisible(true);
+                    if( rs.getString("p_image").isEmpty()){
+                        cuf.select.setEnabled(true);
+                        cuf.removed.setEnabled(false);
+                    }else{
+                        cuf.select.setEnabled(false);
+                        cuf.removed.setEnabled(true);
+                    }
+                    this.dispose();
+                }
+
+            }catch(SQLException ex){
+                System.out.println(""+ex);
+
+            }
+        }
+        
     }//GEN-LAST:event_updateActionPerformed
 
     private void addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addActionPerformed
@@ -387,7 +484,7 @@ try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
     }//GEN-LAST:event_declineActionPerformed
 
     private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
-       adminform a = new adminform();
+       adminforms a = new adminforms();
        a.setVisible(true);
        this.dispose();
     }//GEN-LAST:event_jLabel4MouseClicked
@@ -396,9 +493,42 @@ try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
         // TODO add your handling code here:
     }//GEN-LAST:event_table_projectMouseClicked
 
-    private void clear1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clear1ActionPerformed
-       
-    }//GEN-LAST:event_clear1ActionPerformed
+    private void printActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printActionPerformed
+       int rowIndex = table_project.getSelectedRow();
+        if(rowIndex <0){
+            JOptionPane.showMessageDialog(null, "Please select an Item!");
+        }else{
+            try{
+                
+                dbConnector db = new dbConnector();
+                TableModel tbl =  table_project.getModel();
+                ResultSet rs = db.getData("SELECT *FROM tbl_projects WHERE p_id ='"+tbl.getValueAt(rowIndex, 0)+"'");
+                if(rs.next()){
+                    individualPrintings ipt = new individualPrintings();
+                    ipt.pid.setText(""+rs.getInt("u_id"));
+                    ipt.uid.setText(""+rs.getInt("u_id"));
+                    ipt.employee.setText(""+rs.getString("u_fn"));
+                    ipt.pname.setText(""+rs.getString("p_name"));
+                    ipt.syear.setText(rs.getString("p_date"));
+                    ipt.budget.setText(""+rs.getString("p_budget"));
+                    ipt.location.setText(""+rs.getString("p_location"));
+                    ipt.endyear.setText(""+rs.getString("p_updatedate"));
+                    ipt.client_name.setText(""+rs.getString("u_type"));
+                    ipt.contact.setText(""+rs.getString("p_contact"));
+                    ipt.pstatus.setText(""+rs.getString("p_status"));
+                    ipt.image.setIcon(ipt.ResizeImage(rs.getString("p_image"), null, ipt.image));
+                    ipt.setVisible(true);
+                }
+
+            }catch(SQLException ex){
+                System.out.println(""+ex);
+
+            }
+        }
+                                        
+
+    
+    }//GEN-LAST:event_printActionPerformed
 
     /**
      * @param args the command line arguments
@@ -439,7 +569,6 @@ try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
     private javax.swing.JButton add;
     private javax.swing.JButton aproved;
     public javax.swing.JButton clear;
-    private javax.swing.JButton clear1;
     private javax.swing.JButton decline;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -448,6 +577,7 @@ try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JButton print;
     private javax.swing.JTable table_product;
     public javax.swing.JTable table_project;
     private javax.swing.JButton update;

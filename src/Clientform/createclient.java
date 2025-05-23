@@ -6,7 +6,7 @@
 package Clientform;
 
 import LoginForm.loginform;
-import admin.adminform;
+import admin.adminforms;
 import admin.createadmin;
 import config.Session;
 import config.dbConnector;
@@ -34,7 +34,7 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author davetupas
+ * @author davetupas 
  */
 public class createclient extends javax.swing.JFrame {
 
@@ -43,9 +43,30 @@ public class createclient extends javax.swing.JFrame {
     public createclient() {
         initComponents();
         populateComboBoxes();
-         
+        loadClientsIntoComboBox();
     } 
-    
+     private void loadClientsIntoComboBox() {
+    dbConnector db = new dbConnector();
+    try {
+        String query = "SELECT DISTINCT u_fn FROM tbl_client";
+        PreparedStatement pst = db.connect.prepareStatement(query);
+        ResultSet rs = pst.executeQuery();
+        while (rs.next()) {
+            clientcombo.addItem(rs.getString("u_fn"));
+        }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "Error loading clients: " + e.getMessage());
+    } finally {
+        try {
+            db.connect.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+}
+
    
    private void populateComboBoxes() {
     dbConnector db = new dbConnector();
@@ -109,13 +130,14 @@ public class createclient extends javax.swing.JFrame {
         pname = new javax.swing.JComboBox<>();
         date = new com.toedter.calendar.JDateChooser();
         duedate = new com.toedter.calendar.JDateChooser();
-        worker = new javax.swing.JTextField();
+        clients = new javax.swing.JTextField();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
         pid = new javax.swing.JTextField();
         jLabel17 = new javax.swing.JLabel();
-        jPanel3 = new javax.swing.JPanel();
+        client = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
+        clientcombo = new javax.swing.JComboBox<>();
 
         fn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -237,12 +259,12 @@ public class createclient extends javax.swing.JFrame {
         contact.add(date, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 280, 260, 40));
         contact.add(duedate, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 330, 260, 40));
 
-        worker.addActionListener(new java.awt.event.ActionListener() {
+        clients.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                workerActionPerformed(evt);
+                clientsActionPerformed(evt);
             }
         });
-        contact.add(worker, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 176, 260, 40));
+        contact.add(clients, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 176, 260, 40));
 
         jLabel15.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         contact.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 130, -1, -1));
@@ -270,7 +292,7 @@ public class createclient extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(contact, javax.swing.GroupLayout.PREFERRED_SIZE, 486, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(contact, javax.swing.GroupLayout.PREFERRED_SIZE, 431, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -283,7 +305,7 @@ public class createclient extends javax.swing.JFrame {
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 940, -1));
 
-        jPanel3.setBackground(new java.awt.Color(153, 153, 255));
+        client.setBackground(new java.awt.Color(153, 153, 255));
 
         jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/back (1).png"))); // NOI18N
         jLabel7.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -292,24 +314,31 @@ public class createclient extends javax.swing.JFrame {
             }
         });
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(499, Short.MAX_VALUE)
-                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+        clientcombo.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        clientcombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select Client Name" }));
+
+        javax.swing.GroupLayout clientLayout = new javax.swing.GroupLayout(client);
+        client.setLayout(clientLayout);
+        clientLayout.setHorizontalGroup(
+            clientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(clientLayout.createSequentialGroup()
+                .addContainerGap(428, Short.MAX_VALUE)
+                .addGroup(clientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(clientcombo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(33, 33, 33)
+        clientLayout.setVerticalGroup(
+            clientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(clientLayout.createSequentialGroup()
+                .addContainerGap()
                 .addComponent(jLabel7)
-                .addContainerGap(503, Short.MAX_VALUE))
+                .addGap(92, 92, 92)
+                .addComponent(clientcombo, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(387, Short.MAX_VALUE))
         );
 
-        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 0, 600, 600));
+        getContentPane().add(client, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 0, 600, 600));
 
         pack();
         setLocationRelativeTo(null);
@@ -329,7 +358,7 @@ public class createclient extends javax.swing.JFrame {
           this.dispose();
       }else{
           
-         pid.setText(""+sess.getCId());
+         pid.setText(""+sess.getC_id());
           uid.setText(""+sess.getId());
           
        
@@ -343,9 +372,9 @@ public class createclient extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_pidActionPerformed
 
-    private void workerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_workerActionPerformed
+    private void clientsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clientsActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_workerActionPerformed
+    }//GEN-LAST:event_clientsActionPerformed
 
     private void pnameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pnameActionPerformed
         // TODO add your handling code here:
@@ -357,7 +386,7 @@ public class createclient extends javax.swing.JFrame {
 
     private void updateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateActionPerformed
         if (uid.getText().isEmpty() || pname.getSelectedItem().equals("Select Project") ||
-            worker.getText().isEmpty() || date.getDate() == null ||
+            clients.getText().isEmpty() || date.getDate() == null ||
             duedate.getDate() == null || cstatus.getSelectedItem().equals("SELECT")) {
 
             JOptionPane.showMessageDialog(null, "All fields are required and status must be selected!");
@@ -371,7 +400,7 @@ public class createclient extends javax.swing.JFrame {
             String formattedDate = sdf.format(date.getDate());
             String formattedDueDate = sdf.format(duedate.getDate());
             String selectedProject = (String) pname.getSelectedItem();
-            String currentuser = worker.getText().trim();
+            String currentuser = clients.getText().trim();
             String selectedUser = (String) assignner.getSelectedItem();
             int p_id = -1;
             int u_id = -1;
@@ -613,6 +642,9 @@ public class createclient extends javax.swing.JFrame {
     public javax.swing.JTextField Email;
     public javax.swing.JComboBox<String> Gender;
     protected javax.swing.JComboBox<String> assignner;
+    private javax.swing.JPanel client;
+    private javax.swing.JComboBox<String> clientcombo;
+    private javax.swing.JTextField clients;
     private javax.swing.JPanel contact;
     public javax.swing.JComboBox<String> cstatus;
     private com.toedter.calendar.JDateChooser date;
@@ -633,11 +665,9 @@ public class createclient extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel3;
     public javax.swing.JTextField pid;
     private javax.swing.JComboBox<String> pname;
     public javax.swing.JTextField uid;
     public javax.swing.JButton update;
-    private javax.swing.JTextField worker;
     // End of variables declaration//GEN-END:variables
 }

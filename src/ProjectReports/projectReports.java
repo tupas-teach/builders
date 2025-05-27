@@ -50,45 +50,32 @@ public class projectReports extends javax.swing.JFrame {
     Color bodycolor = new Color(153,153,255);
     
 
-     public void displayData() {
-    Session sess = Session.getInstance();
-    String userType = sess.getType(); // Get logged-in user type
-    dbConnector dbc = new dbConnector();
-    ResultSet rs = null;
-
+     
+   
+        public void displayData() {
+    searchemployee.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ID", "Projects" }));
     try {
-        // Get all projects regardless of user
-        rs = dbc.getData("SELECT p_id, u_fn, p_name, u_type, p_date, p_updatedate, p_location, p_status, approval FROM tbl_projects");
+        dbConnector dbc = new dbConnector();
 
+        // Include p_id as the first column in the result set
+        ResultSet rs = dbc.getData("SELECT p_id, u_fn, p_name, u_type, p_date, p_updatedate FROM tbl_projects");
         table_project.setModel(DbUtils.resultSetToTableModel(rs));
 
-        // Set headers
-        table_project.getColumnModel().getColumn(0).setHeaderValue("P ID");
-        table_project.getColumnModel().getColumn(1).setHeaderValue("Maker Name");
-        table_project.getColumnModel().getColumn(2).setHeaderValue("Project Name");
+        // Update column headers starting from index 1
+        table_project.getColumnModel().getColumn(1).setHeaderValue("First Name");
+        table_project.getColumnModel().getColumn(2).setHeaderValue("Project");
         table_project.getColumnModel().getColumn(3).setHeaderValue("Client Name");
         table_project.getColumnModel().getColumn(4).setHeaderValue("Start Date");
-        table_project.getColumnModel().getColumn(5).setHeaderValue("Due Date");
-        table_project.getColumnModel().getColumn(6).setHeaderValue("Location");
-        table_project.getColumnModel().getColumn(7).setHeaderValue("Status");
-        table_project.getColumnModel().getColumn(8).setHeaderValue("Approval");
+        table_project.getColumnModel().getColumn(5).setHeaderValue("End Date");
 
-        if ("employee".equalsIgnoreCase(userType)) {
-            // Hide the u_fn column (index 1) for employees
-            table_project.getColumnModel().getColumn(1).setMinWidth(0);
-            table_project.getColumnModel().getColumn(1).setMaxWidth(0);
-            table_project.getColumnModel().getColumn(1).setWidth(0);
-        } else {
-            // Show the column for others
-            table_project.getColumnModel().getColumn(1).setMinWidth(100);
-            table_project.getColumnModel().getColumn(1).setMaxWidth(200);
-            table_project.getColumnModel().getColumn(1).setWidth(150);
-        }
+        // Optional: hide the p_id column if you don't want to display it
+        table_project.removeColumn(table_project.getColumnModel().getColumn(0));
 
-    } catch (SQLException ex) {
-        System.out.println("Error: " + ex.getMessage());
+    } catch(SQLException ex) {
+        System.out.println("Errors: " + ex.getMessage());
     }
 }
+
 
 
 
@@ -127,6 +114,11 @@ public class projectReports extends javax.swing.JFrame {
         aproved = new javax.swing.JButton();
         decline = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
+        refresh = new javax.swing.JButton();
+        searchemployee = new javax.swing.JComboBox<>();
+        searchBar = new javax.swing.JTextField();
+        searchButton = new javax.swing.JButton();
+        fn = new javax.swing.JLabel();
 
         table_product.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -179,7 +171,7 @@ public class projectReports extends javax.swing.JFrame {
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/supervisor.png"))); // NOI18N
-        jPanel2.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 54, -1, -1));
+        jPanel2.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 10, -1, -1));
 
         table_project.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -196,7 +188,7 @@ public class projectReports extends javax.swing.JFrame {
         });
         jScrollPane3.setViewportView(table_project);
 
-        jPanel2.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 70, 510, -1));
+        jPanel2.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 140, 510, -1));
 
         clear.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         clear.setText("CLIENT");
@@ -241,7 +233,7 @@ public class projectReports extends javax.swing.JFrame {
                 aprovedActionPerformed(evt);
             }
         });
-        jPanel2.add(aproved, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 20, 130, 40));
+        jPanel2.add(aproved, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 90, 130, 40));
 
         decline.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         decline.setText("DECLINE");
@@ -250,7 +242,7 @@ public class projectReports extends javax.swing.JFrame {
                 declineActionPerformed(evt);
             }
         });
-        jPanel2.add(decline, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 20, 130, 40));
+        jPanel2.add(decline, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 90, 130, 40));
 
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/back (1).png"))); // NOI18N
         jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -258,9 +250,43 @@ public class projectReports extends javax.swing.JFrame {
                 jLabel4MouseClicked(evt);
             }
         });
-        jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 10, -1, -1));
+        jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 10, -1, -1));
 
-        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 0, 750, 600));
+        refresh.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        refresh.setText("REFRESH");
+        refresh.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                refreshActionPerformed(evt);
+            }
+        });
+        jPanel2.add(refresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 90, 125, 40));
+
+        searchemployee.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jPanel2.add(searchemployee, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 200, 130, 40));
+
+        searchBar.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        searchBar.setMinimumSize(new java.awt.Dimension(8, 20));
+        searchBar.setPreferredSize(new java.awt.Dimension(8, 20));
+        searchBar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchBarActionPerformed(evt);
+            }
+        });
+        jPanel2.add(searchBar, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 33, 280, 30));
+
+        searchButton.setText("SEARCH");
+        searchButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchButtonActionPerformed(evt);
+            }
+        });
+        jPanel2.add(searchButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 30, -1, 30));
+
+        fn.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        fn.setText("User");
+        jPanel2.add(fn, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 150, 70, -1));
+
+        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 0, 780, 600));
 
         pack();
         setLocationRelativeTo(null);
@@ -278,57 +304,60 @@ public class projectReports extends javax.swing.JFrame {
             l.setVisible(true);
             this.dispose();
         }else{
+            fn.setText(""+sess.getFn());
                 
         }      
     }//GEN-LAST:event_formWindowActivated
 
     private void updateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateActionPerformed
-    int rowIndex = table_project.getSelectedRow();
-        if(rowIndex <0){
-            JOptionPane.showMessageDialog(null, "Please select an Item!");
-        }else{
-            try{
-                dbConnector dbc = new dbConnector();
-                TableModel tbl =  table_project.getModel();
-                ResultSet rs = dbc.getData("SELECT *FROM tbl_projects WHERE p_id ='"+tbl.getValueAt(rowIndex, 0)+"'");
-                if(rs.next()){
-                    createproject cuf = new createproject();
-                    cuf.pid.setText("");
-                    cuf.uid.setText("");
-                    cuf.employee.setSelectedItem("");
-                    cuf.pname.setSelectedItem("");
-                    cuf.date.getDate();
-                    cuf.budget.setText("");
-                    cuf.location.setText("");
-                    cuf.endyear.getDate();
-                    cuf.client_name.setSelectedItem("");
-                    cuf.contact.setText("");
-                    cuf.pstatus.setSelectedItem("");
-                    cuf.Add.setEnabled(false);
-                    cuf.update.setEnabled(true);
-                    cuf.image.setIcon(cuf.ResizeImage(rs.getString("p_image"), null, cuf.image));
-                    cuf.oldpath = rs.getString("p_image");
-                    cuf.path =  rs.getString("p_image");
-                    cuf.destination =  rs.getString("p_image");
-                    cuf.select.setEnabled(false);
-                    cuf.removed.setEnabled(true);
-                    cuf.setVisible(true);
-                    if( rs.getString("p_image").isEmpty()){
-                        cuf.select.setEnabled(true);
-                        cuf.removed.setEnabled(false);
-                    }else{
-                        cuf.select.setEnabled(false);
-                        cuf.removed.setEnabled(true);
-                    }
-                    this.dispose();
+        int rowIndex = table_project.getSelectedRow();
+    if (rowIndex < 0) {
+        JOptionPane.showMessageDialog(null, "Please select an Item!");
+    } else {
+        try {
+            dbConnector dbc = new dbConnector();
+            TableModel tbl = table_project.getModel();
+
+            // Get p_id directly from the model (always first column in the model)
+            int modelRow = table_project.convertRowIndexToModel(rowIndex);
+            Object pIdValue = tbl.getValueAt(modelRow, 0); // 0 is p_id in model
+            ResultSet rs = dbc.getData("SELECT * FROM tbl_projects WHERE p_id = '" + pIdValue + "'");
+
+            if (rs.next()) {
+                createproject cuf = new createproject();
+                cuf.pid.setText(rs.getString("p_id"));
+                cuf.uid.setText(rs.getString("u_id")); // Assuming these exist
+                cuf.employee.setSelectedItem(rs.getString("u_fn"));
+                cuf.pname.setSelectedItem(rs.getString("p_name"));
+                cuf.date.setDate(rs.getDate("p_date"));
+                cuf.budget.setText(rs.getString("p_budget"));
+                cuf.location.setText(rs.getString("p_location"));
+                cuf.endyear.setDate(rs.getDate("p_updatedate"));
+                cuf.client_name.setSelectedItem(rs.getString("u_type")); // Adjust based on your column names
+                cuf.contact.setText(rs.getString("p_contact"));
+                cuf.pstatus.setSelectedItem(rs.getString("p_status"));
+                cuf.Add.setEnabled(false);
+                cuf.update.setEnabled(true);
+                cuf.image.setIcon(cuf.ResizeImage(rs.getString("p_image"), null, cuf.image));
+                cuf.oldpath = rs.getString("p_image");
+                cuf.path = rs.getString("p_image");
+                cuf.destination = rs.getString("p_image");
+                cuf.select.setEnabled(false);
+                cuf.removed.setEnabled(true);
+
+                if (rs.getString("p_image").isEmpty()) {
+                    cuf.select.setEnabled(true);
+                    cuf.removed.setEnabled(false);
                 }
 
-            }catch(SQLException ex){
-                System.out.println(""+ex);
-
+                cuf.setVisible(true);
+                this.dispose();
             }
+
+        } catch (SQLException ex) {
+            System.out.println("Error: " + ex.getMessage());
         }
-        
+    }
     }//GEN-LAST:event_updateActionPerformed
 
     private void addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addActionPerformed
@@ -351,7 +380,7 @@ if (selectedRow == -1) {
     return;
 }
 
-int taskId = (int) table_project.getValueAt(selectedRow, 0);
+int projectId = (int) table_project.getValueAt(selectedRow, 0);
 
 // Get the current logged-in user's session
 Session sess = Session.getInstance();
@@ -369,7 +398,7 @@ dbConnector dbc = new dbConnector();
 // Step 1: Check if the project is already accepted
 String checkQuery = "SELECT approval FROM tbl_projects WHERE p_id = ?";
 try (PreparedStatement checkPst = dbc.connect.prepareStatement(checkQuery)) {
-    checkPst.setInt(1, taskId);
+    checkPst.setInt(1, projectId);
     ResultSet rs = checkPst.executeQuery();
 
     if (rs.next()) {
@@ -388,7 +417,7 @@ try (PreparedStatement checkPst = dbc.connect.prepareStatement(checkQuery)) {
 String updateQuery = "UPDATE tbl_projects SET approval = 'Approval', u_fn = ? WHERE p_id = ?";
 try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
     pst.setString(1, currentUserFname);
-    pst.setInt(2, taskId);
+    pst.setInt(2, projectId);
     int rowsAffected = pst.executeUpdate();
 
     if (rowsAffected > 0) {
@@ -530,6 +559,39 @@ try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
     
     }//GEN-LAST:event_printActionPerformed
 
+    private void refreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshActionPerformed
+       
+    }//GEN-LAST:event_refreshActionPerformed
+
+    private void searchBarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBarActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_searchBarActionPerformed
+
+    private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
+        String keyword = searchBar.getText().trim();
+
+if (keyword.isEmpty()) {
+    displayData();  // Reload all data if search is empty
+    return;
+}
+
+try {
+    dbConnector dbc = new dbConnector();
+    ResultSet rs;
+
+    // Search by project name OR user full name
+    String query = "SELECT * FROM tbl_projects " +
+                   "WHERE p_name LIKE '%" + keyword + "%' " +
+                   "OR u_fn LIKE '%" + keyword + "%'";
+    rs = dbc.getData(query);
+    table_project.setModel(DbUtils.resultSetToTableModel(rs));
+
+} catch (SQLException ex) {
+    System.out.println("Error during search: " + ex.getMessage());
+}
+
+    }//GEN-LAST:event_searchButtonActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -570,6 +632,7 @@ try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
     private javax.swing.JButton aproved;
     public javax.swing.JButton clear;
     private javax.swing.JButton decline;
+    private javax.swing.JLabel fn;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
@@ -578,6 +641,10 @@ try (PreparedStatement pst = dbc.connect.prepareStatement(updateQuery)) {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JButton print;
+    private javax.swing.JButton refresh;
+    private javax.swing.JTextField searchBar;
+    private javax.swing.JButton searchButton;
+    private javax.swing.JComboBox<String> searchemployee;
     private javax.swing.JTable table_product;
     public javax.swing.JTable table_project;
     private javax.swing.JButton update;

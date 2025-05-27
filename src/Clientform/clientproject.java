@@ -6,14 +6,27 @@
 package Clientform;
 
 import LoginForm.loginform;
+import ProjectReports.individualPrintings;
 import ProjectReports.projectReports;
+import admin.createproject;
 import config.Session;
 import config.dbConnector;
 import java.awt.Color;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.table.TableModel;
 import net.proteanit.sql.DbUtils;
 
 /**
@@ -21,14 +34,16 @@ import net.proteanit.sql.DbUtils;
  * @author davetupas
  */
 public class clientproject extends javax.swing.JFrame {
-
-    /**
-     * Creates new form clientproject
-     */
+ 
+    
     public clientproject() {
         initComponents();
         displayData(null);
     }
+public String destination ="";
+    File selectedFile;
+    public String oldpath;
+    public String path;
 
     Color  navcolor = new Color(102,0,102);
     Color headcolor = new Color(102,102,255);
@@ -50,6 +65,56 @@ public class clientproject extends javax.swing.JFrame {
             System.out.println("Errors: " + ex.getMessage());
         }
     }
+        
+        public int FileExistenceChecker(String path){
+        File file = new File(path);
+        String fileName = file.getName();
+        
+        Path filePath = Paths.get("src/userimages", fileName);
+        boolean fileExists = Files.exists(filePath);
+        
+        if (fileExists) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+        public static int getHeightFromWidth(String imagePath, int desiredWidth) {
+        try {
+            // Read the image file
+            File imageFile = new File(imagePath);
+            BufferedImage image = ImageIO.read(imageFile);
+            
+            // Get the original width and height of the image
+            int originalWidth = image.getWidth();
+            int originalHeight = image.getHeight();
+            
+            // Calculate the new height based on the desired width and the aspect ratio
+            int newHeight = (int) ((double) desiredWidth / originalWidth * originalHeight);
+            
+            return newHeight;
+        } catch (IOException ex) {
+            System.out.println("No image found!");
+        }
+        
+        return -1;
+    }
+        public  ImageIcon ResizeImage(String ImagePath, byte[] pic, JLabel label) {
+    ImageIcon MyImage = null;
+        if(ImagePath !=null){
+            MyImage = new ImageIcon(ImagePath);
+        }else{
+            MyImage = new ImageIcon(pic);
+        }
+        
+    int newHeight = getHeightFromWidth(ImagePath, label.getWidth());
+
+    Image img = MyImage.getImage();
+    Image newImg = img.getScaledInstance(label.getWidth(), newHeight, Image.SCALE_SMOOTH);
+    ImageIcon image = new ImageIcon(newImg);
+    return image;
+}
+
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -68,6 +133,8 @@ public class clientproject extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         pending = new javax.swing.JButton();
         refresh = new javax.swing.JButton();
+        prints = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
 
         jButton1.setText("jButton1");
 
@@ -167,6 +234,24 @@ public class clientproject extends javax.swing.JFrame {
             }
         });
         jPanel2.add(refresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 140, 125, 45));
+
+        prints.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        prints.setText("PRINT");
+        prints.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                printsActionPerformed(evt);
+            }
+        });
+        jPanel2.add(prints, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 140, 120, 50));
+
+        jButton2.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        jButton2.setText("Edit");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 150, 130, 40));
 
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 0, 590, 550));
 
@@ -298,6 +383,91 @@ public class clientproject extends javax.swing.JFrame {
     JOptionPane.showMessageDialog(null, "Table refreshed.");
     }//GEN-LAST:event_refreshActionPerformed
 
+    private void printsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printsActionPerformed
+        int rowIndex = table_client.getSelectedRow();
+        if(rowIndex <0){
+            JOptionPane.showMessageDialog(null, "Please select an Item!");
+        }else{
+            try{
+                
+                dbConnector db = new dbConnector();
+                TableModel tbl =  table_client.getModel();
+                ResultSet rs = db.getData("SELECT *FROM tbl_client WHERE c_id ='"+tbl.getValueAt(rowIndex, 0)+"'");
+                if(rs.next()){
+                    individualsPrintings ipt = new individualsPrintings();
+                    ipt.cid.setText(""+rs.getInt("c_id"));
+                    ipt.uid.setText(""+rs.getInt("u_id"));
+                    ipt.clients.setText(""+rs.getString("c_fn"));
+                    ipt.pname.setText(""+rs.getString("p_name"));
+                    ipt.date.setText(rs.getString("c_date"));
+                    ipt.due.setText(""+rs.getString("c_duedate"));
+                    ipt.budget.setText(""+rs.getString("c_budget"));
+                    ipt.Gender.setText(""+rs.getString("c_gender"));
+                     ipt.assignner.setText(""+rs.getString("worker_assign"));
+                    ipt.Email.setText(""+rs.getString("c_email"));
+                    ipt.cstatus.setText(""+rs.getString("c_status"));
+                    ipt.image.setIcon(ipt.ResizeImage(rs.getString("c_image"), null, ipt.image));
+                    ipt.setVisible(true);
+                }
+
+            }catch(SQLException ex){
+                System.out.println(""+ex);
+
+            }
+        }
+    }//GEN-LAST:event_printsActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+ int rowIndex = table_client.getSelectedRow();
+    if (rowIndex < 0) {
+        JOptionPane.showMessageDialog(null, "Please select an Item!");
+    } else {
+        try {
+            dbConnector dbc = new dbConnector();
+            TableModel tbl = table_client.getModel();
+
+            // Get p_id directly from the model (always first column in the model)
+            int modelRow = table_client.convertRowIndexToModel(rowIndex);
+            Object pIdValue = tbl.getValueAt(modelRow, 0); // 0 is p_id in model
+            ResultSet rs = dbc.getData("SELECT * FROM tbl_projects WHERE p_id = '" + pIdValue + "'");
+
+            if (rs.next()) {
+                createclient cuf = new createclient();
+                cuf.cid.setText(rs.getString("p_id"));
+                cuf.uid.setText(rs.getString("u_id")); // Assuming these exist
+                cuf.clients.setText(rs.getString("u_fn"));
+                cuf.pname.setSelectedItem(rs.getString("p_name"));
+                cuf.date.setDate(rs.getDate("p_date"));
+                cuf.budget.setText(rs.getString("p_budget"));
+                cuf.Gender.setSelectedItem(rs.getString("p_location"));
+                cuf.duedate.setDate(rs.getDate("p_updatedate"));
+                cuf.assignner.setSelectedItem(rs.getString("u_type")); // Adjust based on your column names
+                cuf.Email.setText(rs.getString("c_email"));
+                cuf.cstatus.setSelectedItem(rs.getString("p_status"));
+                cuf.Add.setEnabled(false);
+                cuf.update.setEnabled(true);
+                cuf.image.setIcon(cuf.ResizeImage(rs.getString("p_image"), null, cuf.image));
+                cuf.oldpath = rs.getString("p_image");
+                cuf.path = rs.getString("p_image");
+                cuf.destination = rs.getString("p_image");
+                cuf.select.setEnabled(false);
+                cuf.remove.setEnabled(true);
+
+                if (rs.getString("p_image").isEmpty()) {
+                    cuf.select.setEnabled(true);
+                    cuf.remove.setEnabled(false);
+                }
+
+                cuf.setVisible(true);
+                this.dispose();
+            }
+
+        } catch (SQLException ex) {
+            System.out.println("Error: " + ex.getMessage());
+        }
+    }      
+    }//GEN-LAST:event_jButton2ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -338,6 +508,7 @@ public class clientproject extends javax.swing.JFrame {
     private javax.swing.JButton aproved;
     private javax.swing.JButton decline;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
@@ -345,6 +516,7 @@ public class clientproject extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton pending;
+    public javax.swing.JButton prints;
     private javax.swing.JButton refresh;
     public javax.swing.JTable table_client;
     // End of variables declaration//GEN-END:variables

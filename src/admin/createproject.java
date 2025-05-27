@@ -12,6 +12,7 @@ import LoginForm.loginform;
 import ProjectReports.projectReports;
 import config.Session;
 import config.dbConnector;
+import config.passwordHasher;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -20,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.NoSuchAlgorithmException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -471,21 +473,22 @@ public class createproject extends javax.swing.JFrame {
                     String formattedStartDate = sdf.format(date.getDate());
                     String formattedEndDate = sdf.format(endyear.getDate());
 
-                    String query = "INSERT INTO tbl_projects (u_id , u_fn,p_name, p_date, p_location, p_budget, p_updatedate, u_type, p_contact, p_status,p_image) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+                    String query = "INSERT INTO tbl_projects ( p_id,u_id , u_fn,p_name, p_date, p_location, p_budget, p_updatedate, u_type, p_contact, p_status,p_image) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)";
 
                     PreparedStatement ps = dbc.getConnection().prepareStatement(query);
-                    ps.setString(1, uid.getText());
-                     ps.setString(2, employee.getSelectedItem().toString());
-                    ps.setString(3, pname.getSelectedItem().toString());
-                    ps.setString(4, formattedStartDate);
-                    ps.setString(5, location.getText());
-                    ps.setString(6, budget.getText());
-                    ps.setString(7, formattedEndDate);
-                    ps.setString(8, client_name.getSelectedItem().toString());
-                    ps.setString(9, contact.getText());
-                    ps.setString(10, pstatus.getSelectedItem().toString());
-                     ps.setString(11, destination);
+                      ps.setString(1, pid.getText());
+                    ps.setString(2, uid.getText());
+                     ps.setString(3, employee.getSelectedItem().toString());
+                    ps.setString(4, pname.getSelectedItem().toString());
+                    ps.setString(5, formattedStartDate);
+                    ps.setString(6, location.getText());
+                    ps.setString(7, budget.getText());
+                    ps.setString(8, formattedEndDate);
+                    ps.setString(9, client_name.getSelectedItem().toString());
+                    ps.setString(10, contact.getText());
+                    ps.setString(11, pstatus.getSelectedItem().toString());
+                     ps.setString(12, destination);
                 
                 
                       try{
@@ -517,43 +520,44 @@ public class createproject extends javax.swing.JFrame {
     }//GEN-LAST:event_AddActionPerformed
 
     private void updateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateActionPerformed
-        if (pid.getText().isEmpty() || location.getText().isEmpty() || contact.getText().isEmpty()
-            || employee.getSelectedItem().equals("")|| date.getDate() == null || endyear.getDate() == null) {
-            JOptionPane.showMessageDialog(null, "All fields are required!");
-        } else {
-            try {
-                dbConnector dbc = new dbConnector();
-                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
-                String formattedStartDate = sdf.format(date.getDate());
-                String formattedEndDate = sdf.format(endyear.getDate());
+        if (location.getText().isEmpty() || contact.getText().isEmpty() || employee.getSelectedItem().equals("")
+        || date.getDate() == null || endyear.getDate() == null) {
+    JOptionPane.showMessageDialog(null, "All fields are required!");
+} else {
+    try {
+        dbConnector dbc = new dbConnector();
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+        String formattedStartDate = sdf.format(date.getDate());
+        String formattedEndDate = sdf.format(endyear.getDate());
 
-                String query = "UPDATE tbl_projects SET  u_fn = ?, p_name = ?, p_date = ?, "
-                + "p_location = ?, p_budget = ?, p_updatedate = ?, u_type = ?, "
-                + "p_contact = ?, p_status = ? , p_image = ? WHERE p_id = ?";
-                PreparedStatement ps = dbc.getConnection().prepareStatement(query);
-                 ps.setString(1, pid.getText());
-                     ps.setString(2, employee.getSelectedItem().toString());
-                    ps.setString(3, pname.getSelectedItem().toString());
-                    ps.setString(4, formattedStartDate);
-                    ps.setString(5, location.getText());
-                    ps.setString(6, budget.getText());
-                    ps.setString(7, formattedEndDate);
-                    ps.setString(8, client_name.getSelectedItem().toString());
-                    ps.setString(9, contact.getText());
-                    ps.setString(10, pstatus.getSelectedItem().toString());
-                     ps.setString(11, destination);
-                    
-                ps.executeUpdate();
-                JOptionPane.showMessageDialog(null, "Updated Successfully!");
+        String sql = "UPDATE tbl_projects SET "
+                + "u_id = '" + uid.getText() + "', "
+                + "u_fn = '" + employee.getSelectedItem() + "', "
+                + "p_name = '" + pname.getSelectedItem() + "', "
+                + "p_date = '" + formattedStartDate + "', "
+                + "p_budget = '" + budget.getText() + "', "
+                + "p_contact = '" + contact.getText() + "', "
+                + "p_location = '" + location.getText() + "', "
+                + "p_updatedate = '" + formattedEndDate + "', "
+                + "u_type = '" + client_name.getSelectedItem() + "', "
+                + "p_status = '" + pstatus.getSelectedItem() + "', "
+                + "p_image = '" + destination + "' "
+                + "WHERE p_id = '" + pid.getText() + "'";
 
-                projectReports pr = new projectReports();
-                pr.setVisible(true);
-                this.dispose();
-            } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
-            }
-        }
+        dbc.insertData(sql);  // Consider renaming to updateData()
+
+        JOptionPane.showMessageDialog(null, "Update Successfully!");
+
+        projectReports pj = new projectReports();
+        pj.setVisible(true);
+        this.dispose();
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+    }
+}
+
+
     }//GEN-LAST:event_updateActionPerformed
 
     private void jButton6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton6MouseClicked

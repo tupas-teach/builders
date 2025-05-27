@@ -29,8 +29,11 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import static javax.swing.SwingConstants.LEFT;
+import static javax.swing.text.html.HTML.Tag.SELECT;
 
 /**
  *
@@ -43,29 +46,101 @@ public class createclient extends javax.swing.JFrame {
     public createclient() {
         initComponents();
         populateComboBoxes();
-        loadClientsIntoComboBox();
+       
     } 
-     private void loadClientsIntoComboBox() {
-    dbConnector db = new dbConnector();
-    try {
-        String query = "SELECT DISTINCT u_fn FROM tbl_client";
-        PreparedStatement pst = db.connect.prepareStatement(query);
-        ResultSet rs = pst.executeQuery();
-        while (rs.next()) {
-            clientcombo.addItem(rs.getString("u_fn"));
-        }
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(null, "Error loading clients: " + e.getMessage());
-    } finally {
-        try {
-            db.connect.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+    
+     public String destination ="";
+    File selectedFile;
+    public String oldpath;
+    public String path;
+    
+    
+    public int FileExistenceChecker(String path){
+        File file = new File(path);
+        String fileName = file.getName();
+        
+        Path filePath = Paths.get("src/userimages", fileName);
+        boolean fileExists = Files.exists(filePath);
+        
+        if (fileExists) {
+            return 1;
+        } else {
+            return 0;
         }
     }
+        public static int getHeightFromWidth(String imagePath, int desiredWidth) {
+        try {
+            // Read the image file
+            File imageFile = new File(imagePath);
+            BufferedImage image = ImageIO.read(imageFile);
+            
+            // Get the original width and height of the image
+            int originalWidth = image.getWidth();
+            int originalHeight = image.getHeight();
+            
+            // Calculate the new height based on the desired width and the aspect ratio
+            int newHeight = (int) ((double) desiredWidth / originalWidth * originalHeight);
+            
+            return newHeight;
+        } catch (IOException ex) {
+            System.out.println("No image found!");
+        }
+        
+        return -1;
+    }
+        public  ImageIcon ResizeImage(String ImagePath, byte[] pic, JLabel label) {
+    ImageIcon MyImage = null;
+        if(ImagePath !=null){
+            MyImage = new ImageIcon(ImagePath);
+        }else{
+            MyImage = new ImageIcon(pic);
+        }
+        
+    int newHeight = getHeightFromWidth(ImagePath, label.getWidth());
 
-
+    Image img = MyImage.getImage();
+    Image newImg = img.getScaledInstance(label.getWidth(), newHeight, Image.SCALE_SMOOTH);
+    ImageIcon image = new ImageIcon(newImg);
+    return image;
 }
+
+    
+
+
+    public void loadActiveUsers() {
+        dbConnector db = new dbConnector(); // Assumes this class has a connect field and getData method
+
+        try {
+            // ✅ SQL: Only load active users and combine first + last name
+            String sqlUsers = "SELECT CONCAT(u_fn, ' ', u_ln) AS full_name FROM tbl_user WHERE u_status = 'active'";
+
+            ResultSet rsUsers = db.getData(sqlUsers); // getData returns ResultSet
+            DefaultComboBoxModel<String> userModel = new DefaultComboBoxModel<>();
+            userModel.addElement("Select Employee");
+
+            while (rsUsers.next()) {
+                String userName = rsUsers.getString("full_name");
+                userModel.addElement(userName);
+                System.out.println("User Name loaded: " + userName);  // Optional debug log
+            }
+
+            assignner.setModel(userModel);
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error fetching user data: " + ex.getMessage());
+            ex.printStackTrace();
+        } finally {
+            try {
+                if (db.connect != null && !db.connect.isClosed()) {
+                    db.connect.close();
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(null, "Error closing DB connection: " + ex.getMessage());
+            }
+        }
+    
+}
+
 
    
    private void populateComboBoxes() {
@@ -84,7 +159,7 @@ public class createclient extends javax.swing.JFrame {
         String sqlUsers = "SELECT u_fn FROM tbl_user"; 
         ResultSet rsUsers = db.getData(sqlUsers);
         DefaultComboBoxModel<String> userModel = new DefaultComboBoxModel<>();
-        userModel.addElement("Select User");
+        userModel.addElement("Select Employee");
         while (rsUsers.next()) {
             String userName = rsUsers.getString("u_fn");
             userModel.addElement(userName);
@@ -133,11 +208,16 @@ public class createclient extends javax.swing.JFrame {
         clients = new javax.swing.JTextField();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
-        pid = new javax.swing.JTextField();
+        cid = new javax.swing.JTextField();
         jLabel17 = new javax.swing.JLabel();
+        budget = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
         client = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
-        clientcombo = new javax.swing.JComboBox<>();
+        jPanel2 = new javax.swing.JPanel();
+        image = new javax.swing.JLabel();
+        select = new javax.swing.JButton();
+        remove = new javax.swing.JButton();
 
         fn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -164,16 +244,16 @@ public class createclient extends javax.swing.JFrame {
         contact.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel4.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel4.setText("Project name");
-        contact.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 230, -1, -1));
+        jLabel4.setText("Project budget");
+        contact.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 250, -1, -1));
 
         jLabel5.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel5.setText("Start Date");
-        contact.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 290, -1, 20));
+        contact.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 300, -1, 20));
 
         jLabel6.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel6.setText("End Date");
-        contact.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 340, -1, -1));
+        contact.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 340, -1, -1));
 
         jLabel10.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel10.setText("Gender:");
@@ -196,7 +276,7 @@ public class createclient extends javax.swing.JFrame {
         contact.add(assignner, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 380, 258, 38));
 
         jLabel12.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel12.setText("Admin Status");
+        jLabel12.setText("Client Status");
         contact.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 520, -1, 31));
 
         cstatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select", "active", "In_active", "available" }));
@@ -225,7 +305,7 @@ public class createclient extends javax.swing.JFrame {
                 AddActionPerformed(evt);
             }
         });
-        contact.add(Add, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 40, 120, 41));
+        contact.add(Add, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 10, 120, 41));
 
         update.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         update.setText("UPDATE");
@@ -235,11 +315,11 @@ public class createclient extends javax.swing.JFrame {
                 updateActionPerformed(evt);
             }
         });
-        contact.add(update, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 40, -1, 41));
+        contact.add(update, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 10, -1, 41));
 
         jLabel2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel2.setText("Client name");
-        contact.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 190, -1, -1));
+        contact.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, -1, -1));
 
         uid.setEnabled(false);
         uid.addActionListener(new java.awt.event.ActionListener() {
@@ -247,7 +327,7 @@ public class createclient extends javax.swing.JFrame {
                 uidActionPerformed(evt);
             }
         });
-        contact.add(uid, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 130, 260, 35));
+        contact.add(uid, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 100, 260, 35));
 
         pname.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "select" }));
         pname.addActionListener(new java.awt.event.ActionListener() {
@@ -255,8 +335,8 @@ public class createclient extends javax.swing.JFrame {
                 pnameActionPerformed(evt);
             }
         });
-        contact.add(pname, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 230, 260, 30));
-        contact.add(date, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 280, 260, 40));
+        contact.add(pname, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 190, 260, 40));
+        contact.add(date, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 290, 260, 40));
         contact.add(duedate, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 330, 260, 40));
 
         clients.addActionListener(new java.awt.event.ActionListener() {
@@ -264,26 +344,33 @@ public class createclient extends javax.swing.JFrame {
                 clientsActionPerformed(evt);
             }
         });
-        contact.add(clients, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 176, 260, 40));
+        contact.add(clients, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 140, 260, 40));
 
         jLabel15.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         contact.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 130, -1, -1));
 
         jLabel16.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel16.setText("User id");
-        contact.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 140, -1, -1));
+        contact.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 110, -1, -1));
 
-        pid.setEnabled(false);
-        pid.addActionListener(new java.awt.event.ActionListener() {
+        cid.setEnabled(false);
+        cid.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pidActionPerformed(evt);
+                cidActionPerformed(evt);
             }
         });
-        contact.add(pid, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 90, 260, 35));
+        contact.add(cid, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 60, 260, 35));
 
         jLabel17.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel17.setText("Client id");
-        contact.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 100, -1, -1));
+        contact.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 70, -1, -1));
+
+        budget.setEnabled(false);
+        contact.add(budget, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 240, 260, 40));
+
+        jLabel8.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel8.setText("Project name");
+        contact.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 200, -1, -1));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -314,31 +401,72 @@ public class createclient extends javax.swing.JFrame {
             }
         });
 
-        clientcombo.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        clientcombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select Client Name" }));
+        image.setText("     image not found");
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(image, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(image, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        select.setText("Select");
+        select.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectActionPerformed(evt);
+            }
+        });
+
+        remove.setText("Remove");
+        remove.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removeActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout clientLayout = new javax.swing.GroupLayout(client);
         client.setLayout(clientLayout);
         clientLayout.setHorizontalGroup(
             clientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(clientLayout.createSequentialGroup()
-                .addContainerGap(428, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, clientLayout.createSequentialGroup()
+                .addContainerGap(420, Short.MAX_VALUE)
                 .addGroup(clientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(clientcombo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, clientLayout.createSequentialGroup()
+                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(51, 51, 51))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, clientLayout.createSequentialGroup()
+                        .addGroup(clientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, clientLayout.createSequentialGroup()
+                                .addComponent(select, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(remove))
+                            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(32, 32, 32))))
         );
         clientLayout.setVerticalGroup(
             clientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(clientLayout.createSequentialGroup()
-                .addContainerGap()
                 .addComponent(jLabel7)
-                .addGap(92, 92, 92)
-                .addComponent(clientcombo, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(387, Short.MAX_VALUE))
+                .addGap(113, 113, 113)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(clientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(select)
+                    .addComponent(remove))
+                .addGap(0, 235, Short.MAX_VALUE))
         );
 
-        getContentPane().add(client, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 0, 600, 600));
+        getContentPane().add(client, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 0, 650, 600));
 
         pack();
         setLocationRelativeTo(null);
@@ -358,7 +486,7 @@ public class createclient extends javax.swing.JFrame {
           this.dispose();
       }else{
           
-         pid.setText(""+sess.getC_id());
+         cid.setText(""+sess.getC_id());
           uid.setText(""+sess.getId());
           
        
@@ -368,16 +496,65 @@ public class createclient extends javax.swing.JFrame {
       }
     }//GEN-LAST:event_formWindowActivated
 
-    private void pidActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pidActionPerformed
+    private void cidActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cidActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_pidActionPerformed
+    }//GEN-LAST:event_cidActionPerformed
 
     private void clientsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clientsActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_clientsActionPerformed
 
     private void pnameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pnameActionPerformed
-        // TODO add your handling code here:
+  String selectedProject = (String) pname.getSelectedItem();
+if (selectedProject == null || selectedProject.equals("Select Project")) {
+    date.setDate(null);
+    duedate.setDate(null);
+    budget.setText("");
+    assignner.setSelectedItem("");
+    return;
+}
+
+dbConnector db = new dbConnector();
+try {
+    String query = "SELECT p.p_date, p.p_updatedate, p.p_budget, u.u_fn "
+                 + "FROM tbl_projects p "
+                 + "LEFT JOIN tbl_user u ON p.u_id = u.u_id "
+                 + "WHERE p.p_name = ?";
+
+    try (PreparedStatement pst = db.connect.prepareStatement(query)) {
+        pst.setString(1, selectedProject);
+        ResultSet rs = pst.executeQuery();
+
+        if (rs.next()) {
+            java.sql.Date startDate = rs.getDate("p_date");
+            java.sql.Date dueDate = rs.getDate("p_updatedate");
+            String budgetValue = rs.getString("p_budget");
+            String userFirstName = rs.getString("u_fn");
+
+            date.setDate(startDate != null ? new java.util.Date(startDate.getTime()) : null);
+            duedate.setDate(dueDate != null ? new java.util.Date(dueDate.getTime()) : null);
+            budget.setText(budgetValue != null ? budgetValue : "");
+            assignner.setSelectedItem(userFirstName != null ? userFirstName : "Unassigned");
+        } else {
+            date.setDate(null);
+            duedate.setDate(null);
+            budget.setText("");
+            assignner.setSelectedItem("");
+        }
+    }
+} catch (SQLException e) {
+    JOptionPane.showMessageDialog(null, "Error fetching project data: " + e.getMessage());
+    e.printStackTrace();
+} finally {
+    try {
+        if (db.connect != null && !db.connect.isClosed()) {
+            db.connect.close();
+        }
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(null, "Error closing DB connection: " + ex.getMessage());
+    }
+}
+
     }//GEN-LAST:event_pnameActionPerformed
 
     private void uidActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_uidActionPerformed
@@ -427,7 +604,7 @@ public class createclient extends javax.swing.JFrame {
                 }
             }
            String sql = "UPDATE tbl_client SET p_id = ?, u_id = ?, p_name = ?, u_fn = ?, worker_assign = ?, " +
-             "c_date = ?, c_duedate = ?, c_gender = ?, c_email = ?, c_status = ?, accept = ?, approval = ? " +
+             "c_date = ?, c_duedate = ?, c_gender = ?, c_email = ?, c_status = ?,c_image = ?, accept = ?, approval = ? " +
              "WHERE c_id = ?";
             try (PreparedStatement pst = db.connect.prepareStatement(sql)) {
                 pst.setInt(1, p_id);
@@ -553,6 +730,7 @@ public class createclient extends javax.swing.JFrame {
                 pstInsert.setString(8, c_gender);
                 pstInsert.setString(9, c_email);
                 pstInsert.setString(10, c_status);
+                
 
                 if (!userAssign.isEmpty()) {
                     pstInsert.setString(11, "Accepted");
@@ -602,6 +780,35 @@ public class createclient extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jLabel7MouseClicked
 
+    private void selectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectActionPerformed
+      JFileChooser fileChooser = new JFileChooser();
+        int returnValue = fileChooser.showOpenDialog(null);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            try {
+                selectedFile = fileChooser.getSelectedFile();
+                destination = "src/userimages/" + selectedFile.getName();
+                path  = selectedFile.getAbsolutePath();
+
+                if(FileExistenceChecker(path) == 1){
+                    JOptionPane.showMessageDialog(null, "File Already Exist, Rename or Choose another!");
+                    destination = "";
+                    path="";
+                }else{
+                    image.setIcon(ResizeImage(path, null, image));
+                    select.setVisible(false);
+
+                    remove.setVisible(true);
+                }
+            } catch (Exception ex) {
+                System.out.println("File Error!");
+            }
+        }
+    }//GEN-LAST:event_selectActionPerformed
+
+    private void removeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_removeActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -642,14 +849,16 @@ public class createclient extends javax.swing.JFrame {
     public javax.swing.JTextField Email;
     public javax.swing.JComboBox<String> Gender;
     protected javax.swing.JComboBox<String> assignner;
+    public javax.swing.JTextField budget;
+    public javax.swing.JTextField cid;
     private javax.swing.JPanel client;
-    private javax.swing.JComboBox<String> clientcombo;
-    private javax.swing.JTextField clients;
+    public javax.swing.JTextField clients;
     private javax.swing.JPanel contact;
     public javax.swing.JComboBox<String> cstatus;
-    private com.toedter.calendar.JDateChooser date;
-    private com.toedter.calendar.JDateChooser duedate;
+    public com.toedter.calendar.JDateChooser date;
+    public com.toedter.calendar.JDateChooser duedate;
     public javax.swing.JTextField fn;
+    public javax.swing.JLabel image;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -664,9 +873,12 @@ public class createclient extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
-    public javax.swing.JTextField pid;
-    private javax.swing.JComboBox<String> pname;
+    private javax.swing.JPanel jPanel2;
+    public javax.swing.JComboBox<String> pname;
+    public javax.swing.JButton remove;
+    public javax.swing.JButton select;
     public javax.swing.JTextField uid;
     public javax.swing.JButton update;
     // End of variables declaration//GEN-END:variables

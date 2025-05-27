@@ -9,7 +9,6 @@ package admin;
 import LoginForm.loginform;
 import config.Session;
 import config.dbConnector;
-import config.passwordHasher;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -32,6 +31,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 
+
 /**
  *
  * @author davetupas
@@ -52,7 +52,17 @@ public class createadmin extends javax.swing.JFrame {
     public String oldpath;
     public String path;
     
-    
+    public static String hashPassword(String password) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hashedBytes = md.digest(password.getBytes());
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hashedBytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
     public int FileExistenceChecker(String path){
         File file = new File(path);
         String fileName = file.getName();
@@ -469,69 +479,96 @@ public boolean duplicateCheck(){
     }// </editor-fold>//GEN-END:initComponents
 
     private void AddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddActionPerformed
-        if(fn.getText().isEmpty()&&mdn.getText().isEmpty()&&ln.getText().isEmpty()&&un.getText().isEmpty()&&pass.getText().isEmpty()){
-            JOptionPane.showMessageDialog(null, "All fields are required!");
-        }else if(pass.getText().length()<8){
-            JOptionPane.showMessageDialog(null, "Password character should be 8 above!");
-            pass.setText("");
-        }else if(duplicateCheck()){
-            System.out.println("Duplicate Exist");
-        }else{
-            try{
-            dbConnector dbc = new dbConnector();
-             String password = passwordHasher.hashPassword(pass.getText());
-            dbc.insertData("INSERT INTO tbl_user(u_fn,u_middle,u_ln,u_username,u_Contact,u_password,u_type,u_gender,u_email,u_status,u_image)"+
-                "VALUES('"+fn.getText()+"','"+mdn.getText()+"','"+ln.getText()+"','"+un.getText()+"','"+contact.getText()+"','"+password+"','"+type.getSelectedItem()+"','"+gender.getSelectedItem()+"','"+
-                em.getText()+"','"+us.getSelectedItem()+"','"+destination+"')");
+        try {
+    // Check if any field is empty
+    if (fn.getText().isEmpty() || mdn.getText().isEmpty() || ln.getText().isEmpty() || un.getText().isEmpty() || pass.getText().isEmpty()) {
+        JOptionPane.showMessageDialog(null, "All fields are required!");
+        return;  // stop execution here
+    }
 
-            try{
-                Files.copy(selectedFile.toPath(),new File(destination).toPath(),StandardCopyOption.REPLACE_EXISTING);
-                JOptionPane.showMessageDialog(null, "Register Success!");
-                adminforms af = new adminforms();
-                af.setVisible(true);
-                this.dispose();
+    // Check password length
+    if (pass.getText().length() < 8) {
+        JOptionPane.showMessageDialog(null, "Password must be at least 8 characters!");
+        pass.setText("");
+        return;
+    }
 
-            }catch(IOException ex){
-                System.out.println("Insert image Error:"+ ex);
-            
-            
+    // Check for duplicates
+    if (duplicateCheck()) {
+        JOptionPane.showMessageDialog(null, "Duplicate user exists. Registration aborted.");
+        System.out.println("Duplicate exists.");
+        return;
+    }
 
-            }     JOptionPane.showMessageDialog(null, "Connection Error!");
+    // Hash password
+    String passwordHashed = hashPassword(pass.getText());
 
-        } catch (NoSuchAlgorithmException ex) {
-               System.out.println(""+ ex);
-        }
-        }
+    // Insert data to database
+    dbConnector dbc = new dbConnector();
+    String sql = "INSERT INTO tbl_user(u_fn, u_middle, u_ln, u_username, u_Contact, u_password, u_type, u_gender, u_email, u_status, u_image) " +
+                 "VALUES('" + fn.getText() + "','" + mdn.getText() + "','" + ln.getText() + "','" + un.getText() + "','" + contact.getText() + "','" +
+                 passwordHashed + "','" + type.getSelectedItem() + "','" + gender.getSelectedItem() + "','" + em.getText() + "','" +
+                 us.getSelectedItem() + "','" + destination + "')";
+    dbc.insertData(sql);
+
+    // Copy image file
+    Files.copy(selectedFile.toPath(), new File(destination).toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+    JOptionPane.showMessageDialog(null, "Register Success!");
+    adminforms af = new adminforms();
+    af.setVisible(true);
+    this.dispose();
+
+} catch (NoSuchAlgorithmException e) {
+    JOptionPane.showMessageDialog(null, "Error hashing password: " + e.getMessage());
+} catch (IOException e) {
+    JOptionPane.showMessageDialog(null, "Error saving image: " + e.getMessage());
+}
+
     }//GEN-LAST:event_AddActionPerformed
 
     private void updateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateActionPerformed
-        if(fn.getText().isEmpty()&&mdn.getText().isEmpty()&&ln.getText().isEmpty()&&un.getText().isEmpty()&&pass.getText().isEmpty()){
-            JOptionPane.showMessageDialog(null, "All fields are required!");
-        }else if(pass.getText().length()<8){
-            JOptionPane.showMessageDialog(null, "Password character should be 8 above!");
-            pass.setText("");
-        }else if(UpdateCheck()){
-            System.out.println("Duplicate Exist");
-        }else{
-    
-
-        }
-           try {
+       if (fn.getText().isEmpty() && mdn.getText().isEmpty() && ln.getText().isEmpty() && un.getText().isEmpty() && pass.getText().isEmpty()) {
+    JOptionPane.showMessageDialog(null, "All fields are required!");
+} else if (pass.getText().length() < 8) {
+    JOptionPane.showMessageDialog(null, "Password character should be 8 above!");
+    pass.setText("");
+} else if (UpdateCheck()) {
+    System.out.println("Duplicate Exist");
+    JOptionPane.showMessageDialog(null, "Duplicate user exists. Update aborted.");
+} else {
+    try {
+        // Hash the password (assuming hashPassword is a method in the same class)
+        String password = hashPassword(pass.getText());
 
         dbConnector dbc = new dbConnector();
-         String password = passwordHasher.hashPassword(pass.getText());
-        dbc.insertData(" UPDATE tbl_user SET u_fn = '"
-            +fn.getText()+"', u_middle ='"+mdn.getText()+"',u_ln = '"+ln.getText()+"',u_username ='"+un.getText()+"',u_contact ='"+contact.getText()+"',u_password = '"+password+"', u_type ='"+type.getSelectedItem()+"',u_gender = '"+gender.getSelectedItem()+"',u_status='"+us.getSelectedItem()
-            +"',u_image='"+destination+"' WHERE u_id ='"+uid.getText()+"'");
-        JOptionPane.showMessageDialog(null, "Update Successfuly!");
-        
-          } catch (NoSuchAlgorithmException ex) {
-               System.out.println(""+ ex);
-          }
+        String sql = "UPDATE tbl_user SET "
+            + "u_fn = '" + fn.getText() + "', "
+            + "u_middle = '" + mdn.getText() + "', "
+            + "u_ln = '" + ln.getText() + "', "
+            + "u_username = '" + un.getText() + "', "
+            + "u_contact = '" + contact.getText() + "', "
+            + "u_password = '" + password + "', "
+            + "u_type = '" + type.getSelectedItem() + "', "
+            + "u_gender = '" + gender.getSelectedItem() + "', "
+            + "u_status = '" + us.getSelectedItem() + "', "
+            + "u_image = '" + destination + "' "
+            + "WHERE u_id = '" + uid.getText() + "'";
+
+        dbc.insertData(sql);
+
+        JOptionPane.showMessageDialog(null, "Update Successfully!");
         adminforms af = new adminforms();
         af.setVisible(true);
         this.dispose();
-                
+
+    } catch (NoSuchAlgorithmException ex) {
+        JOptionPane.showMessageDialog(null, "Password hashing error: " + ex.getMessage());
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(null, "Error updating data: " + ex.getMessage());
+    }
+}
+         
     }//GEN-LAST:event_updateActionPerformed
 
     private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated

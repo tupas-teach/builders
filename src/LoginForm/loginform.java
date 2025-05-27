@@ -12,7 +12,7 @@ import Users.userforms;
 import admin.admindashboards;
 import config.Session;
 import config.dbConnector;
-import config.passwordHasher;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,53 +26,62 @@ import userslogs.forgot;
 
 public class loginform extends javax.swing.JFrame {
 
-    /**
-     * Creates new form loginform
-     */
     public loginform() {
         initComponents();
     }
+
     private static final Logger LOGGER = Logger.getLogger(loginform.class.getName());
-
-
-   static String status;
+    static String status;
     static String type;
-    public static boolean userExists(int userId) {
-    dbConnector connector = new dbConnector();
-    String query = "SELECT COUNT(*) FROM tbl_user WHERE u_id = ?";
-    try (PreparedStatement pst = connector.getConnection().prepareStatement(query)) {
-        pst.setInt(1, userId);
-        ResultSet rs = pst.executeQuery();
-        if (rs.next()) {
-            return rs.getInt(1) > 0;
+
+    // ✅ Hash password using SHA-256 (hex)
+    public static String hashPassword(String password) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hashedBytes = md.digest(password.getBytes());
+
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hashedBytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
         }
-    } catch (SQLException ex) {
-        LOGGER.log(Level.SEVERE, "Failed to check user existence", ex);
-    }
-    return false;
-}
-
-public static void logLoginActivity(int userId, String action) {
-    if (!userExists(userId)) {
-        LOGGER.log(Level.WARNING, "Cannot log activity: userId " + userId + " does not exist");
-        return;
+        return hexString.toString();
     }
 
-    dbConnector connector = new dbConnector();
-    String insertLog = "INSERT INTO tbl_logs (u_id, l_action) VALUES (?, ?)";
-
-    try (PreparedStatement pst = connector.getConnection().prepareStatement(insertLog)) {
-        pst.setInt(1, userId);
-        pst.setString(2, action);
-        pst.executeUpdate();
-    } catch (SQLException ex) {
-        LOGGER.log(Level.SEVERE, "Failed to log login activity", ex);
+    public static boolean userExists(int userId) {
+        dbConnector connector = new dbConnector();
+        String query = "SELECT COUNT(*) FROM tbl_user WHERE u_id = ?";
+        try (PreparedStatement pst = connector.getConnection().prepareStatement(query)) {
+            pst.setInt(1, userId);
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Failed to check user existence", ex);
+        }
+        return false;
     }
-}
 
+    public static void logLoginActivity(int userId, String action) {
+        if (!userExists(userId)) {
+            LOGGER.log(Level.WARNING, "Cannot log activity: userId " + userId + " does not exist");
+            return;
+        }
 
-    
-    public static boolean loginAcc(String username, String password) {
+        dbConnector connector = new dbConnector();
+        String insertLog = "INSERT INTO tbl_logs (u_id, l_action) VALUES (?, ?)";
+
+        try (PreparedStatement pst = connector.getConnection().prepareStatement(insertLog)) {
+            pst.setInt(1, userId);
+            pst.setString(2, action);
+            pst.executeUpdate();
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Failed to log login activity", ex);
+        }
+    }
+
+    public static boolean loginAcc(String username, String password) throws NoSuchAlgorithmException {
         dbConnector connector = new dbConnector();
         LOGGER.info("Attempting login for username: " + username);
 
@@ -84,7 +93,7 @@ public static void logLoginActivity(int userId, String action) {
 
             if (resultSet.next()) {
                 String hashedPass = resultSet.getString("u_password");
-                String rehashedPass = passwordHasher.hashPassword(password);
+                String rehashedPass = hashPassword(password); // ✅ Direct method call
 
                 LOGGER.info("DB hashed password: " + hashedPass);
                 LOGGER.info("Input rehashed password: " + rehashedPass);
@@ -101,27 +110,24 @@ public static void logLoginActivity(int userId, String action) {
                     sess.setEmail(resultSet.getString("u_email"));
                     sess.setType(type);
 
-                    // Log successful login
                     logLoginActivity(sess.getId(), "Login");
 
                     LOGGER.info("Login successful. User ID: " + sess.getId());
                     return true;
                 } else {
-                    // Log failed login due to wrong password
                     logLoginActivity(resultSet.getInt("u_id"), "Login Failed - Wrong Password");
                     LOGGER.warning("Password mismatch for username: " + username);
                     return false;
                 }
 
             } else {
-                // Log failed login due to no such user; u_id = 0 as placeholder
                 logLoginActivity(0, "Login Failed - Username Not Found: " + username);
                 LOGGER.warning("No user found for username: " + username);
                 return false;
             }
 
-        } catch (SQLException | NoSuchAlgorithmException ex) {
-            LOGGER.log(Level.SEVERE, "Exception during login: ", ex);
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "SQL exception during login: ", ex);
         }
 
         return false;
@@ -288,34 +294,42 @@ public static void logLoginActivity(int userId, String action) {
 
     private void loginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginActionPerformed
        LOGGER.info("Login button clicked.");
-        if (loginAcc(username.getText(), pass.getText())) {
-            if (!status.equals("active")) {
-                LOGGER.warning("Inactive account tried to login: " + username.getText());
-                JOptionPane.showMessageDialog(null, "In-Active Account, Contact the Admin!");
-            } else {
-                switch (type) {
-                    case "admin":
-                        LOGGER.info("Admin login successful.");
-                        JOptionPane.showMessageDialog(null, "Login Success!");
-                        new admindashboards().setVisible(true);
-                        this.dispose();
-                        break;
-                    case "employee":
-                        LOGGER.info("Employee login successful.");
-                        JOptionPane.showMessageDialog(null, "Login Success!");
-                        new userforms().setVisible(true);
-                        this.dispose();
-                        break;
-                    default:
-                        LOGGER.warning("Login failed: Unknown account type.");
-                        JOptionPane.showMessageDialog(null, "No account type found, Contact the Admin!");
-                        break;
+        String user = username.getText();
+        String pwd = new String(pass.getPassword());
+
+        try {
+            if (loginAcc(user, pwd)) {
+                if (!status.equals("active")) {
+                    LOGGER.warning("Inactive account tried to login: " + user);
+                    JOptionPane.showMessageDialog(null, "In-Active Account, Contact the Admin!");
+                } else {
+                    switch (type) {
+                        case "admin":
+                            LOGGER.info("Admin login successful.");
+                            JOptionPane.showMessageDialog(null, "Login Success!");
+                            new admindashboards().setVisible(true);
+                            this.dispose();
+                            break;
+                        case "employee":
+                            LOGGER.info("Employee login successful.");
+                            JOptionPane.showMessageDialog(null, "Login Success!");
+                            new userforms().setVisible(true);
+                            this.dispose();
+                            break;
+                        default:
+                            LOGGER.warning("Login failed: Unknown account type.");
+                            JOptionPane.showMessageDialog(null, "No account type found, Contact the Admin!");
+                            break;
+                    }
                 }
+            } else {
+                LOGGER.warning("Invalid login attempt for username: " + user);
+                JOptionPane.showMessageDialog(null, "Invalid Account!");
             }
-        } else {
-            LOGGER.warning("Invalid login attempt for username: " + username.getText());
-            JOptionPane.showMessageDialog(null, "Invalid Account!");
-        }         
+        } catch (NoSuchAlgorithmException ex) {
+            LOGGER.log(Level.SEVERE, "Password hashing algorithm error", ex);
+            JOptionPane.showMessageDialog(null, "Internal error: Unable to process password. Contact support.");
+        }        
     }//GEN-LAST:event_loginActionPerformed
 
     private void registerMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_registerMouseClicked

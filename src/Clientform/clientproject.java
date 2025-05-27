@@ -134,7 +134,7 @@ public String destination ="";
         pending = new javax.swing.JButton();
         refresh = new javax.swing.JButton();
         prints = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        edit = new javax.swing.JButton();
 
         jButton1.setText("jButton1");
 
@@ -244,14 +244,14 @@ public String destination ="";
         });
         jPanel2.add(prints, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 140, 120, 50));
 
-        jButton2.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        jButton2.setText("Edit");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        edit.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        edit.setText("Edit");
+        edit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                editActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 150, 130, 40));
+        jPanel2.add(edit, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 150, 130, 40));
 
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 0, 590, 550));
 
@@ -417,56 +417,66 @@ public String destination ="";
         }
     }//GEN-LAST:event_printsActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
- int rowIndex = table_client.getSelectedRow();
-    if (rowIndex < 0) {
-        JOptionPane.showMessageDialog(null, "Please select an Item!");
-    } else {
-        try {
-            dbConnector dbc = new dbConnector();
-            TableModel tbl = table_client.getModel();
+    private void editActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editActionPerformed
+int rowIndex = table_client.getSelectedRow();
+if (rowIndex < 0) {
+    JOptionPane.showMessageDialog(null, "Please select an Item!");
+} else {
+    try {
+        dbConnector dbc = new dbConnector();
+        TableModel tbl = table_client.getModel();
 
-            // Get p_id directly from the model (always first column in the model)
-            int modelRow = table_client.convertRowIndexToModel(rowIndex);
-            Object pIdValue = tbl.getValueAt(modelRow, 0); // 0 is p_id in model
-            ResultSet rs = dbc.getData("SELECT * FROM tbl_projects WHERE p_id = '" + pIdValue + "'");
+        int modelRow = table_client.convertRowIndexToModel(rowIndex);
+        // Get client ID from column that actually stores c_id
+        Object clientIdValue = tbl.getValueAt(modelRow, 0); // make sure column 0 is c_id
 
-            if (rs.next()) {
-                createclient cuf = new createclient();
-                cuf.cid.setText(rs.getString("p_id"));
-                cuf.uid.setText(rs.getString("u_id")); // Assuming these exist
-                cuf.clients.setText(rs.getString("u_fn"));
-                cuf.pname.setSelectedItem(rs.getString("p_name"));
-                cuf.date.setDate(rs.getDate("p_date"));
-                cuf.budget.setText(rs.getString("p_budget"));
-                cuf.Gender.setSelectedItem(rs.getString("p_location"));
-                cuf.duedate.setDate(rs.getDate("p_updatedate"));
-                cuf.assignner.setSelectedItem(rs.getString("u_type")); // Adjust based on your column names
-                cuf.Email.setText(rs.getString("c_email"));
-                cuf.cstatus.setSelectedItem(rs.getString("p_status"));
-                cuf.Add.setEnabled(false);
-                cuf.update.setEnabled(true);
-                cuf.image.setIcon(cuf.ResizeImage(rs.getString("p_image"), null, cuf.image));
-                cuf.oldpath = rs.getString("p_image");
-                cuf.path = rs.getString("p_image");
-                cuf.destination = rs.getString("p_image");
+        // Now load full client data using c_id
+        ResultSet rs = dbc.getData("SELECT * FROM tbl_client WHERE c_id = '" + clientIdValue + "'");
+
+        if (rs.next()) {
+            createclient cuf = new createclient();
+
+            // Properly populate fields, including cid
+            cuf.cid.setText(rs.getString("c_id"));
+            cuf.uid.setText(rs.getString("u_id"));
+            cuf.clients.setText(rs.getString("u_fn"));
+            cuf.pname.setSelectedItem(rs.getString("p_name"));
+            cuf.date.setDate(rs.getDate("c_date"));
+            cuf.budget.setText(rs.getString("c_budget"));
+            cuf.duedate.setDate(rs.getDate("c_duedate"));
+            cuf.assignner.setSelectedItem(rs.getString("worker_assign"));
+            cuf.Email.setText(rs.getString("c_email"));
+            cuf.cstatus.setSelectedItem(rs.getString("c_status"));
+            cuf.Gender.setSelectedItem(rs.getString("c_gender"));
+            cuf.Add.setEnabled(false);
+            cuf.update.setEnabled(true);
+
+            String imagePath = rs.getString("c_image");
+            if (imagePath != null && !imagePath.isEmpty()) {
+                cuf.image.setIcon(cuf.ResizeImage(imagePath, null, cuf.image));
+                cuf.oldpath = imagePath;
+                cuf.path = imagePath;
+                cuf.destination = imagePath;
                 cuf.select.setEnabled(false);
                 cuf.remove.setEnabled(true);
-
-                if (rs.getString("p_image").isEmpty()) {
-                    cuf.select.setEnabled(true);
-                    cuf.remove.setEnabled(false);
-                }
-
-                cuf.setVisible(true);
-                this.dispose();
+            } else {
+                cuf.select.setEnabled(true);
+                cuf.remove.setEnabled(false);
             }
 
-        } catch (SQLException ex) {
-            System.out.println("Error: " + ex.getMessage());
+            cuf.setVisible(true);
+            this.dispose();
+        } else {
+            JOptionPane.showMessageDialog(null, "Client record not found.");
         }
-    }      
-    }//GEN-LAST:event_jButton2ActionPerformed
+
+    } catch (SQLException ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+    }
+}
+
+    }//GEN-LAST:event_editActionPerformed
 
     /**
      * @param args the command line arguments
@@ -507,8 +517,8 @@ public String destination ="";
     private javax.swing.JButton add;
     private javax.swing.JButton aproved;
     private javax.swing.JButton decline;
+    private javax.swing.JButton edit;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;

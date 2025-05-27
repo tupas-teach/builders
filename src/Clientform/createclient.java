@@ -10,7 +10,6 @@ import admin.adminforms;
 import admin.createadmin;
 import config.Session;
 import config.dbConnector;
-import config.passwordHasher;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -401,8 +400,6 @@ public class createclient extends javax.swing.JFrame {
             }
         });
 
-        image.setText("     image not found");
-
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -477,23 +474,19 @@ public class createclient extends javax.swing.JFrame {
     }//GEN-LAST:event_fnActionPerformed
 
     private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
-         Session sess = Session.getInstance();
-      
-      if(sess.getId()==0){
-          JOptionPane.showMessageDialog(null,"No Account. Login First!");
-          loginform lf = new loginform();
-          lf.setVisible(true);
-          this.dispose();
-      }else{
-          
-         cid.setText(""+sess.getC_id());
-          uid.setText(""+sess.getId());
-          
-       
-         
-         
-          
-      }
+       Session sess = Session.getInstance();
+
+    if (sess.getId() == 0) {
+        JOptionPane.showMessageDialog(null, "No Account. Login First!");
+        loginform lf = new loginform();
+        lf.setVisible(true);
+        this.dispose();
+    } else {
+        if (cid.getText().isEmpty()) { // only set if it's empty
+            cid.setText("" + sess.getC_id());
+        }
+        uid.setText("" + sess.getId());
+    }
     }//GEN-LAST:event_formWindowActivated
 
     private void cidActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cidActionPerformed
@@ -562,84 +555,112 @@ try {
     }//GEN-LAST:event_uidActionPerformed
 
     private void updateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateActionPerformed
-        if (uid.getText().isEmpty() || pname.getSelectedItem().equals("Select Project") ||
-            clients.getText().isEmpty() || date.getDate() == null ||
-            duedate.getDate() == null || cstatus.getSelectedItem().equals("SELECT")) {
+    if (cid.getText().isEmpty() || cid.getText().equals("0")) {
+        JOptionPane.showMessageDialog(null, "Client ID is missing or invalid. Please use the Edit option from the table to update.");
+        return;
+    }
 
-            JOptionPane.showMessageDialog(null, "All fields are required and status must be selected!");
-            return;
+    if (pname.getSelectedItem().equals("Select Project") ||
+        clients.getText().isEmpty() ||
+        date.getDate() == null ||
+        duedate.getDate() == null ||
+        cstatus.getSelectedItem().equals("SELECT") ||
+        Gender.getSelectedItem().toString().equalsIgnoreCase("select") ||
+        destination == null || destination.trim().isEmpty()) {
+
+        JOptionPane.showMessageDialog(null, "All fields are required. Please complete the form before updating.");
+        return;
+    }
+
+    dbConnector db = new dbConnector();
+
+    try {
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+        String formattedDate = sdf.format(date.getDate());
+        String formattedDueDate = sdf.format(duedate.getDate());
+
+        String selectedProject = (String) pname.getSelectedItem();
+        String currentuser = clients.getText().trim();
+        String selectedUser = (String) assignner.getSelectedItem();
+
+        int p_id = -1;
+        int u_id = -1;
+
+        // Get project ID
+        String getPidQuery = "SELECT p_id FROM tbl_projects WHERE p_name = ?";
+        try (PreparedStatement pst = db.connect.prepareStatement(getPidQuery)) {
+            pst.setString(1, selectedProject);
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                p_id = rs.getInt("p_id");
+            } else {
+                JOptionPane.showMessageDialog(null, "Selected project not found in the database.");
+                return;
+            }
         }
 
-        dbConnector db = new dbConnector();
+        // Get user ID
+        String getUidQuery = "SELECT u_id FROM tbl_user WHERE u_fn = ?";
+        try (PreparedStatement pst = db.connect.prepareStatement(getUidQuery)) {
+            pst.setString(1, currentuser);
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                u_id = rs.getInt("u_id");
+            } else {
+                JOptionPane.showMessageDialog(null, "User not found in the database.");
+                return;
+            }
+        }
 
+        int clientId = Integer.parseInt(cid.getText());
+        System.out.println("Updating client with ID: " + clientId);
+
+        String sql = "UPDATE tbl_client SET p_id = ?, u_id = ?, p_name = ?, u_fn = ?, worker_assign = ?, " +
+                     "c_date = ?, c_duedate = ?, c_gender = ?, c_email = ?, c_status = ?, c_image = ?, " +
+                     "accept = ?, approval = ? WHERE c_id = ?";
+
+        try (PreparedStatement pst = db.connect.prepareStatement(sql)) {
+            pst.setInt(1, p_id);
+            pst.setInt(2, u_id);
+            pst.setString(3, selectedProject);
+            pst.setString(4, currentuser);
+            pst.setString(5, selectedUser);
+            pst.setString(6, formattedDate);
+            pst.setString(7, formattedDueDate);
+            pst.setString(8, Gender.getSelectedItem().toString());
+            pst.setString(9, Email.getText());
+            pst.setString(10, cstatus.getSelectedItem().toString());
+            pst.setString(11, destination);
+            pst.setString(12, "Pending");
+            pst.setString(13, "Waiting Approval");
+            pst.setInt(14, clientId);
+
+            int rowsAffected = pst.executeUpdate();
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(null, "Client updated successfully!");
+                clientproject cp = new clientproject();
+                cp.setVisible(true);
+                this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(null, "Failed to update client. Make sure the Client ID exists.");
+            }
+        }
+
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage());
+        ex.printStackTrace();
+    } catch (NumberFormatException nfex) {
+        JOptionPane.showMessageDialog(null, "Invalid Client ID format.");
+        nfex.printStackTrace();
+    } finally {
         try {
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
-            String formattedDate = sdf.format(date.getDate());
-            String formattedDueDate = sdf.format(duedate.getDate());
-            String selectedProject = (String) pname.getSelectedItem();
-            String currentuser = clients.getText().trim();
-            String selectedUser = (String) assignner.getSelectedItem();
-            int p_id = -1;
-            int u_id = -1;
-            String getPidQuery = "SELECT p_id FROM tbl_projects WHERE p_name = ?";
-            try (PreparedStatement pst = db.connect.prepareStatement(getPidQuery)) {
-                pst.setString(1, selectedProject);
-                ResultSet rs = pst.executeQuery();
-                if (rs.next()) {
-                    p_id = rs.getInt("p_id");
-                } else {
-                    JOptionPane.showMessageDialog(null, "Project not found.");
-                    return;
-                }
+            if (db.connect != null && !db.connect.isClosed()) {
+                db.connect.close();
             }
-            String getUidQuery = "SELECT u_id FROM tbl_user WHERE u_fn = ?";
-            try (PreparedStatement pst = db.connect.prepareStatement(getUidQuery)) {
-                pst.setString(1, currentuser);
-                ResultSet rs = pst.executeQuery();
-                if (rs.next()) {
-                    u_id = rs.getInt("u_id");
-                } else {
-                    JOptionPane.showMessageDialog(null, "User not found.");
-                    return;
-                }
-            }
-           String sql = "UPDATE tbl_client SET p_id = ?, u_id = ?, p_name = ?, u_fn = ?, worker_assign = ?, " +
-             "c_date = ?, c_duedate = ?, c_gender = ?, c_email = ?, c_status = ?,c_image = ?, accept = ?, approval = ? " +
-             "WHERE c_id = ?";
-            try (PreparedStatement pst = db.connect.prepareStatement(sql)) {
-                pst.setInt(1, p_id);
-                pst.setInt(2, u_id);
-                pst.setString(3, selectedProject);
-                pst.setString(4, currentuser);
-                pst.setString(5, selectedUser);
-                pst.setString(6, formattedDate);
-                pst.setString(7, formattedDueDate);
-                pst.setString(8, Gender.getSelectedItem().toString());
-                pst.setString(9, Email.getText());
-                pst.setString(10, cstatus.getSelectedItem().toString());
-                pst.setInt(11, Integer.parseInt(uid.getText()));
-                int rowsAffected = pst.executeUpdate();
-                if (rowsAffected > 0) {
-                    JOptionPane.showMessageDialog(null, "Client updated successfully!");
-                    clientproject cp = new clientproject();
-                    cp.setVisible(true);
-                    this.dispose();
-                } else {
-                    JOptionPane.showMessageDialog(null, "Failed to update Client.");
-                }
-            }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage());
-            ex.printStackTrace();
-        } finally {
-            try {
-                if (db.connect != null && !db.connect.isClosed()) {
-                    db.connect.close();
-                }
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(null, "Error closing database connection: " + e.getMessage());
-            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error closing DB connection: " + e.getMessage());
         }
+    }
     }//GEN-LAST:event_updateActionPerformed
 
     private void AddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddActionPerformed
@@ -806,7 +827,11 @@ try {
     }//GEN-LAST:event_selectActionPerformed
 
     private void removeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeActionPerformed
-        // TODO add your handling code here:
+       remove.setEnabled(false);
+     select.setEnabled(true);
+     image.setIcon(null);
+      destination ="";
+path ="";
     }//GEN-LAST:event_removeActionPerformed
 
     /**

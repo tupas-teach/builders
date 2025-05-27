@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 18, 2025 at 06:36 AM
+-- Generation Time: May 27, 2025 at 12:30 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -44,7 +44,14 @@ INSERT INTO `otp_requests` (`id`, `user_email`, `otp_code`, `expiry_time`, `is_u
 (1, 'warkoman05@gmail.com', '383458', '2025-05-16 03:07:51', 1, '2025-05-16 09:57:51'),
 (2, 'warkoman05@gmil.com', '023058', '2025-05-16 03:20:33', 0, '2025-05-16 10:10:33'),
 (3, 'warkoman05@gmil.com', '573847', '2025-05-16 03:22:28', 0, '2025-05-16 10:12:28'),
-(4, 'warkoman05@gmail.com', '263416', '2025-05-16 03:24:08', 0, '2025-05-16 10:14:08');
+(4, 'warkoman05@gmail.com', '263416', '2025-05-16 03:24:08', 0, '2025-05-16 10:14:08'),
+(5, 'alexded192@gmail.com', '157928', '2025-05-27 15:18:20', 1, '2025-05-27 07:08:20'),
+(6, 'mike@stcecilia.edu.ph', '944007', '2025-05-27 15:21:15', 0, '2025-05-27 07:11:15'),
+(7, 'warkoman05@gmail.com', '822192', '2025-05-27 15:24:48', 1, '2025-05-27 07:14:48'),
+(8, 'warkoman05@gmail.com', '255352', '2025-05-27 15:36:02', 1, '2025-05-27 07:26:02'),
+(9, 'warkoman05@gmail.com', '804723', '2025-05-27 17:37:16', 1, '2025-05-27 09:27:16'),
+(10, 'tupasdave76@gmail.com', '725122', '2025-05-27 18:28:39', 1, '2025-05-27 10:18:39'),
+(11, 'tupasdave76@gmail.com', '486707', '2025-05-27 18:30:19', 1, '2025-05-27 10:20:19');
 
 -- --------------------------------------------------------
 
@@ -61,10 +68,21 @@ CREATE TABLE `tbl_client` (
   `worker_assign` varchar(255) NOT NULL,
   `c_date` date NOT NULL,
   `c_duedate` date NOT NULL,
+  `c_budget` varchar(255) NOT NULL,
   `c_status` varchar(255) NOT NULL,
   `c_email` varchar(255) NOT NULL,
-  `c_gender` varchar(255) NOT NULL
+  `c_gender` varchar(255) NOT NULL,
+  `accept` varchar(255) NOT NULL,
+  `approval` varchar(255) NOT NULL,
+  `c_image` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbl_client`
+--
+
+INSERT INTO `tbl_client` (`c_id`, `p_id`, `u_id`, `p_name`, `u_fn`, `worker_assign`, `c_date`, `c_duedate`, `c_budget`, `c_status`, `c_email`, `c_gender`, `accept`, `approval`, `c_image`) VALUES
+(1, 2, 8, 'project 3 village', 'mikes', 'mike', '2025-05-16', '2025-05-31', '', 'active', 'mark@gmailo.com', 'male', 'Pending', 'Waiting Approval', 'src/userimages/Screenshot (18).png');
 
 -- --------------------------------------------------------
 
@@ -222,7 +240,96 @@ INSERT INTO `tbl_logs` (`l_id`, `u_id`, `l_action`, `l_timestamp`) VALUES
 (137, 1, 'Login', '2025-05-18 04:02:51'),
 (138, 2, 'Login', '2025-05-18 04:04:20'),
 (139, 2, 'Login', '2025-05-18 04:07:25'),
-(140, 2, 'Login', '2025-05-18 04:25:33');
+(140, 2, 'Login', '2025-05-18 04:25:33'),
+(141, 8, 'Login Failed - Wrong Password', '2025-05-23 06:36:02'),
+(142, 8, 'Login', '2025-05-23 06:36:05'),
+(143, 8, 'Login', '2025-05-23 06:40:02'),
+(144, 8, 'Login', '2025-05-23 06:52:16'),
+(145, 8, 'Login', '2025-05-23 06:58:42'),
+(146, 8, 'Login', '2025-05-23 07:15:14'),
+(147, 8, 'Login', '2025-05-23 07:28:45'),
+(148, 8, 'Login', '2025-05-23 07:32:57'),
+(149, 8, 'Login', '2025-05-23 07:37:13'),
+(150, 8, 'Login', '2025-05-23 07:39:20'),
+(151, 8, 'Login', '2025-05-23 07:44:53'),
+(152, 8, 'Login', '2025-05-23 07:48:23'),
+(153, 8, 'Login', '2025-05-23 09:11:01'),
+(154, 8, 'Login', '2025-05-23 09:14:37'),
+(155, 2, 'Login Failed - Wrong Password', '2025-05-23 09:15:38'),
+(156, 2, 'Login', '2025-05-23 09:15:44'),
+(157, 2, 'Login', '2025-05-27 07:09:10'),
+(158, 6, 'Login Failed - Wrong Password', '2025-05-27 07:16:15'),
+(159, 6, 'Login Failed - Wrong Password', '2025-05-27 07:16:33'),
+(160, 6, 'Login Failed - Wrong Password', '2025-05-27 07:16:35'),
+(161, 6, 'Login Failed - Wrong Password', '2025-05-27 07:16:37'),
+(162, 6, 'Login Failed - Wrong Password', '2025-05-27 07:22:29'),
+(163, 6, 'Login Failed - Wrong Password', '2025-05-27 07:22:30'),
+(164, 6, 'Login Failed - Wrong Password', '2025-05-27 07:22:32'),
+(165, 6, 'Login Failed - Wrong Password', '2025-05-27 07:22:33'),
+(166, 6, 'Login Failed - Wrong Password', '2025-05-27 07:24:32'),
+(167, 6, 'Login Failed - Wrong Password', '2025-05-27 07:24:44'),
+(168, 6, 'Login Failed - Wrong Password', '2025-05-27 07:24:45'),
+(169, 6, 'Login Failed - Wrong Password', '2025-05-27 07:27:55'),
+(170, 6, 'Login Failed - Wrong Password', '2025-05-27 07:29:27'),
+(171, 6, 'Login Failed - Wrong Password', '2025-05-27 07:29:31'),
+(172, 6, 'Login Failed - Wrong Password', '2025-05-27 07:32:52'),
+(173, 6, 'Login Failed - Wrong Password', '2025-05-27 07:33:02'),
+(174, 6, 'Login Failed - Wrong Password', '2025-05-27 07:34:15'),
+(175, 6, 'Login Failed - Wrong Password', '2025-05-27 07:34:18'),
+(176, 6, 'Login Failed - Wrong Password', '2025-05-27 07:34:20'),
+(177, 6, 'Login Failed - Wrong Password', '2025-05-27 07:36:36'),
+(178, 6, 'Login Failed - Wrong Password', '2025-05-27 07:36:38'),
+(179, 8, 'Login', '2025-05-27 07:37:28'),
+(180, 8, 'Login Failed - Wrong Password', '2025-05-27 07:41:43'),
+(181, 8, 'Login', '2025-05-27 07:41:50'),
+(182, 8, 'Login', '2025-05-27 07:43:50'),
+(183, 8, 'Login', '2025-05-27 07:45:51'),
+(184, 8, 'Login', '2025-05-27 07:49:18'),
+(185, 8, 'Login', '2025-05-27 07:49:54'),
+(186, 2, 'Login', '2025-05-27 07:54:17'),
+(187, 8, 'Login', '2025-05-27 07:56:29'),
+(188, 8, 'Login', '2025-05-27 07:57:00'),
+(189, 8, 'Login', '2025-05-27 07:58:32'),
+(190, 8, 'Login', '2025-05-27 07:59:15'),
+(191, 8, 'Login Failed - Wrong Password', '2025-05-27 08:00:04'),
+(192, 8, 'Login Failed - Wrong Password', '2025-05-27 08:00:15'),
+(193, 8, 'Login', '2025-05-27 08:00:22'),
+(194, 6, 'Login Failed - Wrong Password', '2025-05-27 08:01:59'),
+(195, 8, 'Login', '2025-05-27 08:02:35'),
+(196, 8, 'Login', '2025-05-27 08:04:56'),
+(197, 8, 'Login', '2025-05-27 08:09:35'),
+(198, 8, 'Login Failed - Wrong Password', '2025-05-27 08:13:16'),
+(199, 8, 'Login', '2025-05-27 08:13:25'),
+(200, 8, 'Login', '2025-05-27 08:17:50'),
+(201, 8, 'Login', '2025-05-27 08:22:47'),
+(202, 8, 'Login', '2025-05-27 08:26:29'),
+(203, 8, 'Login', '2025-05-27 08:31:00'),
+(204, 8, 'Login', '2025-05-27 08:32:13'),
+(205, 8, 'Login Failed - Wrong Password', '2025-05-27 08:41:17'),
+(206, 8, 'Login', '2025-05-27 08:41:24'),
+(207, 8, 'Login', '2025-05-27 08:46:06'),
+(208, 8, 'Login Failed - Wrong Password', '2025-05-27 09:11:55'),
+(209, 8, 'Login', '2025-05-27 09:12:04'),
+(210, 8, 'Login Failed - Wrong Password', '2025-05-27 09:15:11'),
+(211, 8, 'Login', '2025-05-27 09:15:20'),
+(212, 6, 'Login Failed - Wrong Password', '2025-05-27 09:16:16'),
+(213, 6, 'Login Failed - Wrong Password', '2025-05-27 09:22:21'),
+(214, 6, 'Login Failed - Wrong Password', '2025-05-27 09:22:31'),
+(215, 6, 'Login Failed - Wrong Password', '2025-05-27 09:22:38'),
+(216, 6, 'Login Failed - Wrong Password', '2025-05-27 09:25:39'),
+(217, 6, 'Login Failed - Wrong Password', '2025-05-27 09:25:48'),
+(218, 6, 'Login Failed - Wrong Password', '2025-05-27 09:28:22'),
+(219, 6, 'Login', '2025-05-27 09:45:50'),
+(220, 8, 'Login Failed - Wrong Password', '2025-05-27 10:16:32'),
+(221, 8, 'Login Failed - Wrong Password', '2025-05-27 10:16:39'),
+(222, 8, 'Login Failed - Wrong Password', '2025-05-27 10:16:49'),
+(223, 8, 'Login Failed - Wrong Password', '2025-05-27 10:19:19'),
+(224, 8, 'Login Failed - Wrong Password', '2025-05-27 10:19:29'),
+(225, 8, 'Login Failed - Wrong Password', '2025-05-27 10:20:50'),
+(226, 8, 'Login Failed - Wrong Password', '2025-05-27 10:24:55'),
+(227, 1, 'Login', '2025-05-27 10:25:08'),
+(228, 1, 'Login', '2025-05-27 10:27:52'),
+(229, 1, 'Login', '2025-05-27 10:28:21');
 
 -- --------------------------------------------------------
 
@@ -242,17 +349,18 @@ CREATE TABLE `tbl_projects` (
   `p_updatedate` date NOT NULL,
   `p_status` varchar(255) NOT NULL,
   `u_type` varchar(255) NOT NULL,
-  `approval` varchar(255) DEFAULT NULL
+  `approval` varchar(255) DEFAULT NULL,
+  `p_image` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbl_projects`
 --
 
-INSERT INTO `tbl_projects` (`p_id`, `u_id`, `u_fn`, `p_name`, `p_date`, `p_location`, `p_budget`, `p_contact`, `p_updatedate`, `p_status`, `u_type`, `approval`) VALUES
-(1, 1, 'mike', 'Select', '2025-05-15', 'cebu', '1000', '0912345678', '2025-05-31', 'Available', 'Dave', 'decline'),
-(2, 1, 'mike', 'project 3 village', '2025-05-16', 'Cebu', '1000000000', '0912345678', '2025-05-31', 'Available', 'mike', 'decline'),
-(5, 2, 'Dave sala', 'project 1 owner house', '2025-05-08', 'usa', '14567', '12344556', '2025-05-08', 'Available', 'norilyn', NULL);
+INSERT INTO `tbl_projects` (`p_id`, `u_id`, `u_fn`, `p_name`, `p_date`, `p_location`, `p_budget`, `p_contact`, `p_updatedate`, `p_status`, `u_type`, `approval`, `p_image`) VALUES
+(1, 1, 'mike', 'Select', '2025-05-15', 'cebu', '1000', '0912345678', '2025-05-31', 'Available', 'Dave', 'decline', ''),
+(2, 1, 'mike', 'project 3 village', '2025-05-16', 'Cebu', '1000000000', '0912345678', '2025-05-31', 'Available', 'mike', 'decline', ''),
+(5, 2, 'Dave sala', 'project 1 owner house', '2025-05-08', 'usa', '14567', '12344556', '2025-05-08', 'Available', 'norilyn', NULL, '');
 
 -- --------------------------------------------------------
 
@@ -280,13 +388,7 @@ CREATE TABLE `tbl_user` (
 --
 
 INSERT INTO `tbl_user` (`u_id`, `u_fn`, `u_middle`, `u_ln`, `u_username`, `u_Contact`, `u_password`, `u_type`, `u_gender`, `u_email`, `u_status`, `u_image`) VALUES
-(1, 'mike', 'mike', 'mike', 'mike', '12345', 'yMc4xJPvpAFTlrXDBbMHuRVBXn6jdh1xeZ8fWuioAG8=', 'admin', 'male', 'mikemike@gmail.com', 'active', 'src/userimages/163-1635770_xplus-home-construction-logo-png.png'),
-(2, 'Dave', 'tupas', 'sala', 'dave123', '09321966585', 'PJrYERyaqzsEgx6jcTEpcMnrfVFJklv1SC6GkquvTco=', 'employee', 'select', 'davedave@gmail.com', 'active', 'src/userimages/icons8-gear-100.png'),
-(3, 'Dave', 'tupas', 'sala', 'zuneko', '09321966585', 'PJrYERyaqzsEgx6jcTEpcMnrfVFJklv1SC6GkquvTco=', 'admin', 'select', 'sala@gmail.com', 'active', 'src/images/building.png'),
-(4, 'norilyn', 'Sala', 'Rosaut', 'nori', '12345687', 'e2nzKQPbMEUiw29c64+Imm6JdggG1P5vmzy+BMm1Rzs=', 'client', 'female', 'norinori@gmail.com', 'active', 'src/images/dave.png'),
-(5, 'rosie', 'Rosaut', 'Tupas', 'rosie', '1212345', 'rosierosie', 'client', 'female', 'rosie@gmail.com', 'active', 'src/images/project.png'),
-(6, 'rcjie', 'n', 'villena', 'rcjie', '0912345678', '3bbc88d6187c79130f98432d6eb412361593c2a9aac844fe2bb006ce47d2b327', 'employee', 'male', 'warkoman05@gmail.com', 'active', 'src/userimages/dave.png'),
-(7, 'alexa', 'dara', 'dara', 'alexa', '123456', 'WS0lOdgklyuzYW20IGWI7Xle+6JAy0/Vj6yNWQhnzOk=', 'employee', 'female', 'alexadara@gmail.com', 'active', 'src/userimages/icons8-user-50.png');
+(1, 'Dave', 'S', 'Tupas', 'admin', '1234567890', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', 'admin', 'male', 'alexded192@gmail.com', 'active', 'default.png');
 
 --
 -- Indexes for dumped tables
@@ -334,19 +436,19 @@ ALTER TABLE `tbl_user`
 -- AUTO_INCREMENT for table `otp_requests`
 --
 ALTER TABLE `otp_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `tbl_client`
 --
 ALTER TABLE `tbl_client`
-  MODIFY `c_id` int(25) NOT NULL AUTO_INCREMENT;
+  MODIFY `c_id` int(25) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `tbl_logs`
 --
 ALTER TABLE `tbl_logs`
-  MODIFY `l_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=141;
+  MODIFY `l_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=230;
 
 --
 -- AUTO_INCREMENT for table `tbl_projects`
@@ -358,7 +460,7 @@ ALTER TABLE `tbl_projects`
 -- AUTO_INCREMENT for table `tbl_user`
 --
 ALTER TABLE `tbl_user`
-  MODIFY `u_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `u_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables

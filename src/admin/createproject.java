@@ -12,7 +12,6 @@ import LoginForm.loginform;
 import ProjectReports.projectReports;
 import config.Session;
 import config.dbConnector;
-import config.passwordHasher;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;

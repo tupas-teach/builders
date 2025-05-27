@@ -8,8 +8,9 @@ package userslogs;
 import LoginForm.loginform;
 import config.Session;
 import config.dbConnector;
-import config.passwordHasher;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
@@ -25,6 +26,18 @@ public class ForgetPassword extends javax.swing.JFrame {
      */
     public ForgetPassword() {
         initComponents();
+    }
+    
+     public static String hashPassword(String password) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hashedBytes = md.digest(password.getBytes());
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hashedBytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 
     /**
@@ -188,38 +201,49 @@ public class ForgetPassword extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void resetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetActionPerformed
-        try{
-        dbConnector dbc = new dbConnector();
-        Session sess = Session.getInstance();
-         u_id.setText(""+sess.getId());
-        
-     String query = "SELECT * FROM tbl_user  u_username WHERE u_id = '" + sess.getId() + "'";
-    ResultSet rs = dbc.getData(query);
-    if (rs.next()) {
-        String olddbpass = rs.getString("u_password");
-        String oldhash = passwordHasher.hashPassword(oldpass.getText());
-        String newhash = passwordHasher.hashPassword(newpass.getText()); 
+       try {
+            dbConnector dbc = new dbConnector();
+            Session sess = Session.getInstance();
+            int userId = sess.getId();
+            u_id.setText(String.valueOf(userId));
 
-        if (olddbpass.equals(oldhash)) {
-           
-            if(oldhash.equals(newhash)){
-                JOptionPane.showMessageDialog(null, "New password cannot be the same as the old password!");
-            }
-            else{
-                dbc.updateData("UPDATE tbl_user SET  u_password = '" + newhash + "' WHERE u_id = '" + sess.getId() + "'");
-                JOptionPane.showMessageDialog(null, "Successfully Updated!");
-                loginform lg = new loginform();
-                lg.setVisible(true); 
-                this.dispose();
-            }
+            String selectQuery = "SELECT u_password FROM tbl_user WHERE u_id = ?";
+            PreparedStatement pst = dbc.getConnection().prepareStatement(selectQuery);
+            pst.setInt(1, userId);
+            ResultSet rs = pst.executeQuery();
 
-        } else {
-            JOptionPane.showMessageDialog(null, "Old Password is Incorrect!");
+            if (rs.next()) {
+                String olddbpass = rs.getString("u_password");
+                String oldpassInput = new String(oldpass.getPassword());
+                String newpassInput = new String(newpass.getPassword());
+
+                String oldhash = hashPassword(oldpassInput);
+                String newhash = hashPassword(newpassInput);
+
+                if (olddbpass.equals(oldhash)) {
+                    if (oldhash.equals(newhash)) {
+                        JOptionPane.showMessageDialog(null, "New password cannot be the same as the old password!");
+                    } else {
+                        String updateQuery = "UPDATE tbl_user SET u_password = ? WHERE u_id = ?";
+                        PreparedStatement updatePst = dbc.getConnection().prepareStatement(updateQuery);
+                        updatePst.setString(1, newhash);
+                        updatePst.setInt(2, userId);
+                        updatePst.executeUpdate();
+
+                        JOptionPane.showMessageDialog(null, "Password successfully updated!");
+                        new loginform().setVisible(true);
+                        this.dispose();
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Old password is incorrect!");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "User not found!");
+            }
+        } catch (SQLException | NoSuchAlgorithmException ex) {
+            JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+            ex.printStackTrace();
         }
-    }
-} catch (SQLException  | NoSuchAlgorithmException ex) {
-    System.out.println("" + ex);
-}
     }//GEN-LAST:event_resetActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed

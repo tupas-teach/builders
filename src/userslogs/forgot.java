@@ -1,5 +1,6 @@
 package userslogs;
 
+import LoginForm.loginform;
 import config.dbConnector;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,6 +12,8 @@ import java.util.Random;
 import javax.swing.JOptionPane;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 
@@ -31,19 +34,19 @@ public class forgot extends javax.swing.JFrame {
         
     }
     
-   public static String hashPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = md.digest(password.getBytes());
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hashedBytes) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA-256 algorithm not found!");
-        }
+   public static String hashPassword(String password) throws NoSuchAlgorithmException {
+    MessageDigest md = MessageDigest.getInstance("SHA-256");
+    byte[] hashedBytes = md.digest(password.getBytes());
+    StringBuilder hexString = new StringBuilder();
+    for (byte b : hashedBytes) {
+        String hex = Integer.toHexString(0xff & b);
+        if (hex.length() == 1) hexString.append('0');
+        hexString.append(hex);
     }
+    return hexString.toString(); // ✅ hex format
+}
+
+    
 
     
 
@@ -170,7 +173,7 @@ public class forgot extends javax.swing.JFrame {
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/userimages/attachment_63634065.png"))); // NOI18N
         jPanel1.add(jLabel2);
-        jLabel2.setBounds(-90, 0, 680, 450);
+        jLabel2.setBounds(-90, -10, 680, 450);
 
         jPanel2.setBackground(new java.awt.Color(153, 153, 255));
 
@@ -241,11 +244,11 @@ public class forgot extends javax.swing.JFrame {
             ResultSet rs = pst.executeQuery();
 
             if (rs.next()) {
-                String hashedPassword = hashPassword(newPass);
+                String passwordHasher = hashPassword(newPass);
 
                 String updatePasswordSql = "UPDATE tbl_user SET u_password = ? WHERE u_email = ?";
                 PreparedStatement updatePst = conn.prepareStatement(updatePasswordSql);
-                updatePst.setString(1, hashedPassword);
+                updatePst.setString(1, passwordHasher);
                 updatePst.setString(2, userEmail);
                 updatePst.executeUpdate();
                 updatePst.close();
@@ -266,7 +269,9 @@ public class forgot extends javax.swing.JFrame {
             conn.close();
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage());
-}
+}       catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(forgot.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
     }//GEN-LAST:event_resetActionPerformed
 
@@ -283,7 +288,9 @@ public class forgot extends javax.swing.JFrame {
     }//GEN-LAST:event_newPasswordActionPerformed
 
     private void loginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginActionPerformed
-       
+ loginform i = new loginform() ;
+ i.setVisible(true);
+ this.dispose();
     }//GEN-LAST:event_loginActionPerformed
 
     private void otpfieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_otpfieldActionPerformed

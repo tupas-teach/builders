@@ -8,7 +8,6 @@ package RegisterForm;
 import LoginForm.loginform;
 import admin.createadmin;
 import config.dbConnector;
-import config.passwordHasher;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
@@ -30,36 +29,34 @@ public class RegisterForm extends javax.swing.JFrame {
 
       
       }
-    public String destination ="";
-   public boolean duplicateCheck(){
-    dbConnector dbc = new dbConnector();
-    try{
-        String query = "SELECT * FROM tbl_user WHERE u_username='"+user.getText()+"' OR u_email ='"+em.getText()+"'";
-        ResultSet resultSet = dbc.getData(query);
-        try {
-            resultSet = dbc.getData(query);
-        } catch (SQLException ex) {
-            Logger.getLogger(createadmin.class.getName()).log(Level.SEVERE, null, ex);
+    
+    public static String hashPassword(String password) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hashedBytes = md.digest(password.getBytes());
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hashedBytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
         }
-            if(resultSet.next()){
-                username = resultSet.getString("u_username");
-                        if(username.equals(user.getText())){
-                            user.setText("");
-                        }
-                        
-                           
-                     }else{
-                return true;
-                
-                    
-                
-        
+        return hexString.toString();
     }
-        } catch (SQLException ex) {
-            Logger.getLogger(createadmin.class.getName()).log(Level.SEVERE, null, ex);
-        }
-            return false;
-                }
+    public String destination ="";
+  public boolean duplicateCheck() {
+    dbConnector dbc = new dbConnector();
+    try {
+        String query = "SELECT * FROM tbl_user WHERE u_username = ? OR u_email = ?";
+        java.sql.PreparedStatement pst = dbc.getConnection().prepareStatement(query);
+        pst.setString(1, user.getText());
+        pst.setString(2, email.getText());
+
+        ResultSet rs = pst.executeQuery();
+        return rs.next();  // true if duplicate found
+    } catch (SQLException ex) {
+        Logger.getLogger(RegisterForm.class.getName()).log(Level.SEVERE, null, ex);
+        return true; // to prevent insert in case of error
+    }
+}
   
                 
    
@@ -329,33 +326,53 @@ public class RegisterForm extends javax.swing.JFrame {
     }//GEN-LAST:event_contactActionPerformed
 
     private void registerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerActionPerformed
-        if(fn.getText().isEmpty()&&md.getText().isEmpty()&&ln.getText().isEmpty()&&user.getText().isEmpty()&&pass.getText().isEmpty()&&contact.getText().isEmpty()){
+    if(fn.getText().isEmpty() || md.getText().isEmpty() || ln.getText().isEmpty() || user.getText().isEmpty() || 
+       pass.getText().isEmpty() || contact.getText().isEmpty() || email.getText().isEmpty() ||
+       ty.getSelectedIndex() == 0) {
         JOptionPane.showMessageDialog(null, "All fields are required!");
-         }else if(pass.getText().length()<8){
-             JOptionPane.showMessageDialog(null, "Password character should be 8 above!");
-             pass.setText("");
-         }else{
-             
-        try{
-            dbConnector dbc = new dbConnector();
-            String password = passwordHasher.hashPassword(pass.getText());
-            dbc.insertData("INSERT INTO tbl_user(u_fn, u_middle, u_ln, u_username, u_Contact, u_password, u_type, u_gender, u_email, u_status, u_image) " +
-          "VALUES('" + fn.getText() + "','" + md.getText() + "','" + ln.getText() + "','" + user.getText() + "','" + contact.getText() + "','" + password + "','" +
-           ty.getSelectedItem() + "','" + gender.getSelectedItem() + "','" + email.getText() + "', 'Pending', 'default.png')");
+        return;
+    }
+    if(pass.getText().length() < 8){
+        JOptionPane.showMessageDialog(null, "Password must be at least 8 characters!");
+        pass.setText("");
+        return;
+    }
+    if(duplicateCheck()){
+        JOptionPane.showMessageDialog(null, "Username or Email already exists!");
+        return;
+    }
 
+    try {
+        dbConnector dbc = new dbConnector();
+        String passwordHashed = hashPassword(new String(pass.getPassword())); // get password securely
+        
+        String query = "INSERT INTO tbl_user(u_fn, u_middle, u_ln, u_username, u_Contact, u_password, u_type, u_gender, u_email, u_status, u_image) " +
+                       "VALUES(?,?,?,?,?,?,?,?,?,?,?)";
 
-            {
-                JOptionPane.showMessageDialog(null, "Register Successfully");
-                loginform l = new loginform();
-                l.setVisible(true);
-                this.dispose();
+        java.sql.PreparedStatement pst = dbc.getConnection().prepareStatement(query);
+        pst.setString(1, fn.getText());
+        pst.setString(2, md.getText());
+        pst.setString(3, ln.getText());
+        pst.setString(4, user.getText());
+        pst.setString(5, contact.getText());
+        pst.setString(6, passwordHashed);
+        pst.setString(7, ty.getSelectedItem().toString());
+        pst.setString(8, gender.getSelectedItem().toString());
+        pst.setString(9, email.getText());
+        pst.setString(10, "Pending");
+        pst.setString(11, "default.png"); // default image
+        
+        pst.executeUpdate();
 
-            }
-        }catch(NoSuchAlgorithmException ex){
-            System.out.println(""+ex);
+        JOptionPane.showMessageDialog(null, "Register Successfully");
+        loginform l = new loginform();
+        l.setVisible(true);
+        this.dispose();
 
-        }
-
+    } catch (NoSuchAlgorithmException ex) {
+        JOptionPane.showMessageDialog(null, "Error hashing password: " + ex.getMessage());
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage());  
     }//GEN-LAST:event_registerActionPerformed
     }
     private void cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelActionPerformed
